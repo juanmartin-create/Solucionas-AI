@@ -144,16 +144,17 @@ function GridLines({ inView, hover }: { inView: boolean; hover: number | null })
       aria-hidden
     >
       <g stroke="var(--muted)" strokeOpacity={0.4} strokeWidth={1} fill="none">
+        {/* Se anima el extremo (x2 / y2), no pathLength: con preserveAspectRatio="none"
+            el truco de dasharray se deforma y la línea sale a guiones. */}
         {H.map((y, i) => (
           <motion.line
             key={`h${y}`}
             x1={0}
-            x2={100}
             y1={y}
             y2={y}
             style={line}
-            initial={{ pathLength: 0 }}
-            animate={inView ? { pathLength: 1 } : undefined}
+            initial={{ x2: 0 }}
+            animate={inView ? { x2: 100 } : undefined}
             transition={{ duration: 1.8, ease: EASE_ARRAY, delay: i * 0.15 }}
           />
         ))}
@@ -163,10 +164,9 @@ function GridLines({ inView, hover }: { inView: boolean; hover: number | null })
             x1={x}
             x2={x}
             y1={0}
-            y2={100}
             style={line}
-            initial={{ pathLength: 0 }}
-            animate={inView ? { pathLength: 1 } : undefined}
+            initial={{ y2: 0 }}
+            animate={inView ? { y2: 100 } : undefined}
             transition={{ duration: 1.1, ease: EASE_ARRAY, delay: 0.35 + i * 0.2 }}
           />
         ))}

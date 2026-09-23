@@ -170,7 +170,7 @@ export function Hero() {
           {/* arriba izquierda: tres notas */}
           <div
             className="absolute left-[var(--page-margin)] flex flex-col gap-4"
-            style={{ top: "clamp(2rem, 6vh, 4.5rem)" }}
+            style={{ top: "clamp(4.5rem, 10vh, 6.5rem)" }}
           >
             {NOTES.map((n, i) => (
               <motion.div
@@ -195,7 +195,7 @@ export function Hero() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ ...ENTER, delay: 0.3 }}
             className="absolute right-[var(--page-margin)] flex max-w-[30ch] flex-col items-end gap-6 text-right will-change-transform"
-            style={{ top: "clamp(2rem, 6vh, 4.5rem)" }}
+            style={{ top: "clamp(4.5rem, 10vh, 6.5rem)" }}
           >
             <p className="text-body text-muted">
               Un estudio chico que diseña y construye lo que tu negocio necesita para
@@ -213,9 +213,9 @@ export function Hero() {
             initial={{ y: 12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ ...ENTER, delay: 0.05 }}
-            className="absolute bottom-[-0.06em] left-1/2 -translate-x-1/2 whitespace-nowrap font-display leading-[0.82] tracking-[-0.02em] will-change-transform"
+            className="absolute bottom-[0.04em] left-1/2 -translate-x-1/2 whitespace-nowrap font-display leading-none tracking-[-0.02em] will-change-transform"
             style={{
-              fontSize: "clamp(3.25rem, 17.5vw, 19rem)",
+              fontSize: "clamp(3.25rem, min(17.5vw, 34svh), 19rem)",
               backgroundImage: "linear-gradient(to bottom, var(--ink) 55%, rgba(21,20,15,0.35))",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",

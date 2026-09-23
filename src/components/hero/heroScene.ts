@@ -158,7 +158,8 @@ export function renderHero(
       ctx.restore();
     }
 
-    drawWireframe(ctx, w, h, wireAlpha * clamp01(0.9 - progress * 0.15), t);
+    // Los bocetos quedan tenues para no pisar el texto del overlay.
+    drawWireframe(ctx, w, h, wireAlpha * clamp01(0.55 - progress * 0.1), t);
     ctx.restore();
   }
 
