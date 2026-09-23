@@ -63,13 +63,13 @@ export function Footer() {
     >
       {/* arriba izquierda */}
       <div className="absolute left-[var(--page-margin)] top-[14vh] flex flex-col gap-1">
-        <a href="#empezar" className="text-body text-ink/70 transition-colors hover:text-ink">
+        <a href="#empezar" className="text-body -my-1 flex min-h-11 items-center text-ink/70 transition-colors hover:text-ink">
           Empezar
         </a>
-        <a href="#casos" className="text-body text-ink/70 transition-colors hover:text-ink">
+        <a href="#casos" className="text-body -my-1 flex min-h-11 items-center text-ink/70 transition-colors hover:text-ink">
           Casos
         </a>
-        <a href={`mailto:${SITE.email}`} className="text-body text-ink/70 transition-colors hover:text-ink">
+        <a href={`mailto:${SITE.email}`} className="text-body -my-1 flex min-h-11 items-center text-ink/70 transition-colors hover:text-ink">
           Contacto
         </a>
         <p className="text-h2 mt-10 max-w-[26ch] text-ink/80">

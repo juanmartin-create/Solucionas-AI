@@ -9,9 +9,14 @@ import { Footer } from "@/components/Footer";
 export default function Home() {
   return (
     <>
+      <a href="#contenido" className="skip-link btn btn-hover">
+        Saltar al contenido
+      </a>
       <Nav />
       <main
-        className="relative z-[1] bg-ground"
+        id="contenido"
+        tabIndex={-1}
+        className="relative z-[1] bg-ground outline-none"
         style={{ marginBottom: "calc(100vh + 2px)" }}
       >
         <Hero />

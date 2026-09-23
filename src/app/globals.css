@@ -80,6 +80,49 @@ input,
 select,
 textarea {
   color-scheme: dark;
+  min-height: 44px; /* área táctil mínima */
+}
+
+/* Foco visible y consistente en todo lo interactivo. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Skip link: invisible hasta que recibe foco por teclado. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 0.2s var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Solo para lectores de pantalla. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 select option {
   background: var(--ground-2);
@@ -192,6 +235,36 @@ select option {
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.2) inset,
       0 4px 14px -6px rgba(201, 164, 92, 0.5);
+  }
+}
+
+/* Botón secundario: píldora con borde, misma altura táctil. */
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 9999px;
+  padding: 0.6rem 1.25rem;
+  font-family: var(--font-body);
+  font-size: var(--step-small);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  border: 1px solid rgba(239, 233, 221, 0.22);
+  transition:
+    border-color 0.4s var(--ease-out),
+    color 0.4s var(--ease-out),
+    background-color 0.4s var(--ease-out),
+    transform 0.25s var(--ease-out);
+  cursor: pointer;
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent-light);
+    background-color: rgba(201, 164, 92, 0.08);
+  }
+  &:active {
+    transform: scale(0.96);
   }
 }
 

@@ -120,6 +120,9 @@ export function Descent() {
     >
       <div
         className="sticky top-0 h-svh w-full overflow-hidden text-ink"
+      >
+        <h2 className="sr-only">Casos</h2>
+        <div className="contents"
         style={{
           background: "linear-gradient(160deg, #1c1608 0%, var(--pitch) 85%)",
         }}
@@ -203,7 +206,7 @@ export function Descent() {
               </motion.p>
             </AnimatePresence>
           </div>
-          <div className="text-small text-ink/40">{current.stack}</div>
+          <div className="text-small text-ink/55">{current.stack}</div>
         </div>
 
         {/* riel derecho: índices */}
@@ -276,6 +279,8 @@ export function Descent() {
                       src="/cases/barbershop.webp"
                       alt="Buenos Aires Barbershop, sitio publicado"
                       className="h-auto w-full"
+                      width={1400}
+                      height={875}
                       loading="lazy"
                     />
                   </motion.div>
@@ -283,6 +288,7 @@ export function Descent() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>
