@@ -216,7 +216,7 @@ export function Hero() {
             className="absolute bottom-[0.04em] left-1/2 -translate-x-1/2 whitespace-nowrap font-display leading-none tracking-[-0.02em] will-change-transform"
             style={{
               fontSize: "clamp(3.25rem, min(17.5vw, 34svh), 19rem)",
-              backgroundImage: "linear-gradient(to bottom, var(--ink) 55%, rgba(21,20,15,0.35))",
+              backgroundImage: "linear-gradient(to bottom, var(--ink) 40%, var(--accent) 100%)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
@@ -232,7 +232,7 @@ export function Hero() {
 
 function Note({ name, line, time }: { name: string; line: string; time: string }) {
   return (
-    <div className="w-[15.5rem] bg-ground-2/85 p-5 backdrop-blur-[2px]">
+    <div className="w-[15.5rem] rounded-[10px] border border-white/[0.06] bg-ground-2/85 p-5 backdrop-blur-[2px]">
       <div className="text-h2 leading-none">{name}</div>
       <div className="text-body mt-2">{line}</div>
       <div className="text-small mt-1 text-muted">{time}</div>
@@ -244,7 +244,7 @@ function Cta() {
   return (
     <a
       href="#empezar"
-      className="text-small inline-block bg-ink px-7 py-3.5 text-ground transition-colors duration-500 hover:bg-accent-deep"
+      className="btn btn-hover"
     >
       Pedir una propuesta
     </a>

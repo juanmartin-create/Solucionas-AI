@@ -31,9 +31,11 @@ export const LAYOUT: Omit<Screen, "img" | "ratio">[] = [
   { fx: 0.5, fy: 0.36, fw: 0.3, frot: 0, sx: 0.5, sy: 0.05, srot: 0, t0: 0.5, t1: 0.84 },
 ];
 
-const GROUND = "#ece8df";
-const INK = "#15140f";
-const ACCENT = "#1f4e5a";
+const GROUND = "#0a0a0b";
+const EDGE = "rgba(239, 233, 221, 0.28)"; // borde fino de las pantallas
+const ACCENT = "#c9a45c"; // dorado del boceto
+const GOLD_GLOW = "rgba(201, 164, 92, 0.22)";
+const SHADOW = "rgba(220, 214, 200, 0.28)"; // sombra clara, desenfocada
 
 function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -106,6 +108,24 @@ export function renderHero(
   ctx.fillStyle = GROUND;
   ctx.fillRect(0, 0, vw, vh);
 
+  // Difuminación dorada: dos focos que se desplazan apenas con el progreso.
+  const g1 = ctx.createRadialGradient(
+    vw * (0.82 - 0.1 * progress), vh * 0.15, 0,
+    vw * (0.82 - 0.1 * progress), vh * 0.15, Math.max(vw, vh) * 0.55,
+  );
+  g1.addColorStop(0, GOLD_GLOW);
+  g1.addColorStop(1, "rgba(201,164,92,0)");
+  ctx.fillStyle = g1;
+  ctx.fillRect(0, 0, vw, vh);
+  const g2 = ctx.createRadialGradient(
+    vw * 0.12, vh * (0.95 - 0.15 * progress), 0,
+    vw * 0.12, vh * (0.95 - 0.15 * progress), Math.max(vw, vh) * 0.45,
+  );
+  g2.addColorStop(0, "rgba(201,164,92,0.12)");
+  g2.addColorStop(1, "rgba(201,164,92,0)");
+  ctx.fillStyle = g2;
+  ctx.fillRect(0, 0, vw, vh);
+
   // Push-in de cámara: ≤3% sobre todo el track.
   const push = 1 + 0.03 * smooth(progress);
   const base = Math.min(vw, vh * 1.6);
@@ -138,22 +158,25 @@ export function renderHero(
     if (s.img && imgAlpha > 0.005) {
       ctx.save();
       ctx.globalAlpha = imgAlpha;
-      ctx.shadowColor = `rgba(21, 20, 15, ${0.22 * settle * imgAlpha})`;
-      ctx.shadowBlur = 40 * settle;
-      ctx.shadowOffsetY = 18 * settle;
-      roundRect(ctx, -w / 2, -h / 2, w, h, 8);
-      ctx.fillStyle = GROUND;
+      // sombra paralela (desplazada hacia abajo), desenfocada, hacia gris claro
+      ctx.shadowColor = SHADOW.replace("0.28", String(0.28 * settle * imgAlpha));
+      ctx.shadowBlur = 60 * settle;
+      ctx.shadowOffsetY = 26 * settle;
+      roundRect(ctx, -w / 2, -h / 2, w, h, 10);
+      ctx.fillStyle = "#151516";
       ctx.fill();
       ctx.shadowColor = "transparent";
+      ctx.beginPath();
+      roundRect(ctx, -w / 2, -h / 2, w, h, 10);
       ctx.clip();
       ctx.drawImage(s.img, -w / 2, -h / 2, w, h);
       ctx.restore();
       // borde fino
       ctx.save();
-      ctx.globalAlpha = imgAlpha * 0.35;
-      ctx.strokeStyle = INK;
+      ctx.globalAlpha = imgAlpha;
+      ctx.strokeStyle = EDGE;
       ctx.lineWidth = 1;
-      roundRect(ctx, -w / 2, -h / 2, w, h, 8);
+      roundRect(ctx, -w / 2, -h / 2, w, h, 10);
       ctx.stroke();
       ctx.restore();
     }

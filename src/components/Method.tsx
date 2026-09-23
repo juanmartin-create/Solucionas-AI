@@ -114,7 +114,7 @@ export function Method() {
         aria-hidden
         style={{
           background:
-            "radial-gradient(60% 70% at 88% 50%, rgba(143,179,184,0.45), rgba(143,179,184,0) 70%)",
+            "radial-gradient(60% 70% at 88% 50%, var(--gold-glow), transparent 70%)",
         }}
       />
 

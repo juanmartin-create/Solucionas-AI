@@ -58,21 +58,21 @@ export function Footer() {
 
   return (
     <footer
-      className="fixed bottom-0 left-0 z-0 h-screen w-full overflow-hidden bg-pitch text-ground"
+      className="gold-haze fixed bottom-0 left-0 z-0 h-screen w-full overflow-hidden bg-pitch text-ink"
       aria-label="Pie de página"
     >
       {/* arriba izquierda */}
       <div className="absolute left-[var(--page-margin)] top-[14vh] flex flex-col gap-1">
-        <a href="#empezar" className="text-body text-ground/70 transition-colors hover:text-ground">
+        <a href="#empezar" className="text-body text-ink/70 transition-colors hover:text-ink">
           Empezar
         </a>
-        <a href="#casos" className="text-body text-ground/70 transition-colors hover:text-ground">
+        <a href="#casos" className="text-body text-ink/70 transition-colors hover:text-ink">
           Casos
         </a>
-        <a href={`mailto:${SITE.email}`} className="text-body text-ground/70 transition-colors hover:text-ground">
+        <a href={`mailto:${SITE.email}`} className="text-body text-ink/70 transition-colors hover:text-ink">
           Contacto
         </a>
-        <p className="text-h2 mt-10 max-w-[26ch] text-ground/80">
+        <p className="text-h2 mt-10 max-w-[26ch] text-ink/80">
           La web que vende, el sistema que cobra y el agente que responde. Publicado y en
           uso.
         </p>
@@ -80,7 +80,7 @@ export function Footer() {
 
       {/* arriba derecha */}
       <div className="absolute right-[var(--page-margin)] top-[14vh] hidden flex-col items-end md:flex">
-        <span className="smallcaps text-ground/40">Cuatro frentes</span>
+        <span className="smallcaps text-ink/40">Cuatro frentes</span>
         <div className="mt-4 flex flex-col items-end gap-1">
           {FRONTS.map((f) => (
             <div key={f.n} className={`flex items-baseline gap-4 ${f.o}`}>
@@ -98,7 +98,15 @@ export function Footer() {
         <div
           ref={markRef}
           className="inline-block whitespace-nowrap font-display leading-none tracking-[-0.02em]"
-          style={{ opacity: 0, marginBottom: "-0.21em", marginLeft: "-0.02em" }}
+          style={{
+            opacity: 0,
+            marginBottom: "-0.21em",
+            marginLeft: "-0.02em",
+            backgroundImage: "linear-gradient(to bottom, var(--ink) 30%, var(--accent) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
         >
           {SITE.name}
         </div>

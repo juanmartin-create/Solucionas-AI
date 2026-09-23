@@ -119,9 +119,9 @@ export function Descent() {
       aria-label="Casos"
     >
       <div
-        className="sticky top-0 h-svh w-full overflow-hidden text-ground"
+        className="sticky top-0 h-svh w-full overflow-hidden text-ink"
         style={{
-          background: "linear-gradient(160deg, var(--accent-deep) 0%, var(--pitch) 85%)",
+          background: "linear-gradient(160deg, #1c1608 0%, var(--pitch) 85%)",
         }}
       >
         {/* glow radial: la sala iluminada por la pantalla */}
@@ -151,7 +151,7 @@ export function Descent() {
           style={{ bottom: "5vh" }}
         >
           <div
-            className="font-display leading-none tracking-[-0.02em] text-ground"
+            className="font-display leading-none tracking-[-0.02em] text-ink"
             style={{ fontSize: "clamp(2.75rem, 7.5vw, 8.5rem)" }}
           >
             <Cascade text={current.name} as="h2" />
@@ -170,7 +170,7 @@ export function Descent() {
               ref={(el) => {
                 imgRefs.current[i] = el;
               }}
-              className="absolute inset-0 overflow-hidden rounded-[10px] shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
+              className="photo absolute inset-0"
               style={{ opacity: i === 0 ? 1 : 0 }}
             >
               <img
@@ -188,7 +188,7 @@ export function Descent() {
           ref={leftRef}
           className="absolute left-[var(--page-margin)] top-1/2 w-[min(24ch,20vw)] -translate-y-1/2 will-change-transform"
         >
-          <div className="smallcaps mb-3 text-ground/50">{current.kind}</div>
+          <div className="smallcaps mb-3 text-ink/50">{current.kind}</div>
           <div className="relative h-[7.5rem] overflow-hidden">
             <AnimatePresence initial={false} mode="popLayout">
               <motion.p
@@ -197,13 +197,13 @@ export function Descent() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: "-1.2em", opacity: 0 }}
                 transition={{ duration: 0.45, ease: EASE_ARRAY }}
-                className="text-small absolute inset-x-0 top-0 text-ground/70"
+                className="text-small absolute inset-x-0 top-0 text-ink/70"
               >
                 {current.line}
               </motion.p>
             </AnimatePresence>
           </div>
-          <div className="text-small text-ground/40">{current.stack}</div>
+          <div className="text-small text-ink/40">{current.stack}</div>
         </div>
 
         {/* riel derecho: índices */}
@@ -215,7 +215,7 @@ export function Descent() {
             <span
               key={c.id}
               className={`font-display text-[1.25rem] leading-none transition-colors duration-500 ${
-                i === active ? "text-ground" : "text-ground/30"
+                i === active ? "text-ink" : "text-ink/30"
               }`}
             >
               {c.index}
@@ -226,7 +226,7 @@ export function Descent() {
         {/* amanecer */}
         <div
           ref={dawnRef}
-          className="absolute inset-0 bg-ground-2 will-change-transform"
+          className="gold-haze absolute inset-0 bg-ground-2 will-change-transform"
           style={{ transform: "translate3d(0,100%,0)" }}
           aria-hidden
         />
@@ -270,7 +270,7 @@ export function Descent() {
                     initial={false}
                     animate={houseIn ? { y: 0, opacity: 1 } : { y: 48, opacity: 0 }}
                     transition={{ duration: 1, ease: EASE_ARRAY, delay: houseIn ? 0.4 : 0 }}
-                    className="overflow-hidden rounded-[8px] shadow-[0_30px_80px_rgba(21,20,15,0.18)]"
+                    className="photo"
                   >
                     <img
                       src="/cases/barbershop.webp"
@@ -294,9 +294,9 @@ function DescentStatic() {
   return (
     <section
       id="casos"
-      className="relative text-ground"
+      className="relative text-ink"
       style={{
-        background: "linear-gradient(160deg, var(--accent-deep) 0%, var(--pitch) 85%)",
+        background: "linear-gradient(160deg, #1c1608 0%, var(--pitch) 85%)",
         paddingBlock: "var(--section-pad)",
       }}
     >
@@ -306,12 +306,12 @@ function DescentStatic() {
         </h2>
         {CASES.map((c) => (
           <article key={c.id} className="flex flex-col items-center gap-5 text-center">
-            <div className="w-full overflow-hidden rounded-[8px]" style={{ maxHeight: "36vh" }}>
+            <div className="photo w-full" style={{ maxHeight: "36vh" }}>
               <img src={c.image} alt={`${c.name}: ${c.kind}`} className="h-full w-full object-cover object-top" loading="lazy" />
             </div>
             <div className="text-h2">{c.name}</div>
-            <div className="smallcaps text-ground/50">{c.kind}</div>
-            <p className="text-small max-w-[36ch] text-ground/70">{c.line}</p>
+            <div className="smallcaps text-ink/50">{c.kind}</div>
+            <p className="text-small max-w-[36ch] text-ink/70">{c.line}</p>
           </article>
         ))}
       </div>

@@ -15,7 +15,7 @@ export function Start() {
   return (
     <section
       id="empezar"
-      className="relative min-h-svh bg-ground-2"
+      className="gold-haze relative min-h-svh bg-ground-2"
       style={{ paddingBlock: "var(--section-pad)" }}
     >
       <div className="page-shell">
@@ -44,8 +44,8 @@ export function Start() {
               initial={{ y: 16, opacity: 0 }}
               animate={inView ? { y: 0, opacity: 1 } : undefined}
               transition={{ duration: 1.1, ease: EASE_ARRAY, delay: 0.25 + i * 0.12 }}
-              className={`group -mx-4 grid min-h-[8.75rem] grid-cols-2 items-center gap-x-[var(--gutter)] gap-y-4 px-4 py-6 transition-colors duration-500 hover:bg-accent/12 md:grid-cols-[minmax(0,2.2fr)_1fr_1fr_1.4fr_0.9fr] md:py-0 ${
-                i % 2 === 1 ? "bg-ground/50" : ""
+              className={`group -mx-4 grid min-h-[8.75rem] grid-cols-2 items-center gap-x-[var(--gutter)] gap-y-4 px-4 py-6 transition-colors duration-500 hover:bg-accent/10 md:grid-cols-[minmax(0,2.2fr)_1fr_1fr_1.4fr_0.9fr] md:py-0 ${
+                i % 2 === 1 ? "bg-white/[0.03]" : ""
               }`}
             >
               <div className="col-span-2 md:col-span-1">
@@ -68,7 +68,7 @@ export function Start() {
                     const sel = document.querySelector<HTMLSelectElement>("#need");
                     if (sel) sel.value = s.name;
                   }}
-                  className="text-small inline-block border-b border-ink/30 pb-0.5 transition-colors duration-500 group-hover:border-accent-deep group-hover:text-accent-deep"
+                  className="text-small inline-block border-b border-ink/30 pb-0.5 transition-colors duration-500 group-hover:border-accent group-hover:text-accent"
                 >
                   Pedir propuesta
                 </a>
@@ -88,7 +88,7 @@ function Specimen({ value, unit, label }: { value: number; unit: string; label: 
     <div>
       <div className="smallcaps text-muted md:hidden">{label}</div>
       <div className="flex items-baseline gap-2">
-        <span className="text-numeral transition-colors duration-500 group-hover:text-accent-deep">
+        <span className="text-numeral transition-colors duration-500 group-hover:text-accent">
           {value}
         </span>
         <span className="text-small text-muted">{unit}</span>
@@ -197,7 +197,7 @@ function ContactForm() {
           <button
             type="submit"
             disabled={status === "sending"}
-            className="text-small bg-ink px-7 py-3.5 text-ground transition-colors duration-500 hover:bg-accent-deep disabled:opacity-60"
+            className="btn btn-hover disabled:opacity-60"
           >
             {status === "sending" ? "Enviando…" : "Enviar"}
           </button>

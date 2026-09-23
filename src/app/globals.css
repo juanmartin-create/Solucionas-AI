@@ -4,14 +4,20 @@
    Design tokens
    ------------------------------------------------------------------ */
 :root {
-  --ground: #ece8df; /* fondo de página */
-  --ground-2: #e1dcd0; /* fondo de sección, todo lo posterior al hero */
-  --ink: #15140f;
-  --pitch: #0e0d0b;
-  --muted: #6f6b62;
-  --accent: #1f4e5a; /* agua profunda */
-  --accent-deep: #12313a;
-  --accent-light: #8fb3b8;
+  --ground: #0a0a0b; /* fondo de página: negro cálido */
+  --ground-2: #121213; /* fondo de sección, todo lo posterior al hero */
+  --ink: #efe9dd; /* texto: hueso claro */
+  --pitch: #050505;
+  --muted: #8f8a80;
+  --accent: #c9a45c; /* dorado */
+  --accent-deep: #8a6a2e;
+  --accent-light: #e8d7a8;
+
+  /* difuminaciones doradas */
+  --gold-glow: rgba(201, 164, 92, 0.22);
+  --gold-glow-soft: rgba(201, 164, 92, 0.1);
+  /* sombra de foto: paralela, desenfocada, hacia gris claro */
+  --photo-shadow: 0 28px 70px -12px rgba(220, 214, 200, 0.22), 0 10px 24px -8px rgba(0, 0, 0, 0.6);
 
   --step-display: clamp(3.25rem, 8.5vw, 8.5rem);
   --step-h1: clamp(2.25rem, 4.5vw, 4rem);
@@ -67,7 +73,17 @@ body {
 
 ::selection {
   background: var(--accent);
-  color: var(--ground);
+  color: var(--pitch);
+}
+
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+select option {
+  background: var(--ground-2);
+  color: var(--ink);
 }
 
 /* ------------------------------------------------------------------
@@ -136,6 +152,61 @@ body {
 @utility serif-italic {
   font-family: var(--font-display);
   font-style: italic;
+}
+
+/* Botón táctil: píldora dorada, se hunde al presionar, brilla en hover. */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.9rem 1.75rem;
+  font-family: var(--font-body);
+  font-size: var(--step-small);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--pitch);
+  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 10px 30px -10px rgba(201, 164, 92, 0.6);
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.4s var(--ease-out),
+    filter 0.4s var(--ease-out);
+  will-change: transform;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+@utility btn-hover {
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.35) inset,
+      0 16px 40px -10px rgba(201, 164, 92, 0.75);
+  }
+  &:active {
+    transform: scale(0.96) translateY(1px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.2) inset,
+      0 4px 14px -6px rgba(201, 164, 92, 0.5);
+  }
+}
+
+/* Foto con sombra paralela desenfocada hacia gris claro. */
+@utility photo {
+  box-shadow: var(--photo-shadow);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Difuminación dorada como fondo de sección. */
+@utility gold-haze {
+  background-image:
+    radial-gradient(55% 60% at 85% 10%, var(--gold-glow), transparent 70%),
+    radial-gradient(45% 50% at 10% 95%, var(--gold-glow-soft), transparent 70%);
 }
 
 /* ------------------------------------------------------------------

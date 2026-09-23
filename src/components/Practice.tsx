@@ -32,7 +32,7 @@ export function Practice() {
   return (
     <section
       id="practica"
-      className="relative min-h-svh bg-ground-2"
+      className="gold-haze relative min-h-svh bg-ground-2"
       style={{ paddingTop: "clamp(3.5rem, 8vh, 6rem)", paddingBottom: "var(--section-pad)" }}
     >
       <div className="page-shell">
@@ -80,9 +80,9 @@ export function Practice() {
                 transition={{ duration: 1, ease: EASE_ARRAY, delay: 0.45 + i * 0.18 }}
                 className={[
                   "group relative z-10 flex cursor-pointer flex-col justify-between p-6 outline-none transition-colors duration-500 focus-visible:ring-1 focus-visible:ring-accent",
-                  isStatic ? "min-h-[15rem] bg-ground/60" : "",
-                  !isStatic && isOpen ? "bg-ground" : "",
-                  !isStatic && !isOpen ? "hover:bg-ground/60" : "",
+                  isStatic ? "min-h-[15rem] bg-white/[0.04]" : "",
+                  !isStatic && isOpen ? "bg-white/[0.06]" : "",
+                  !isStatic && !isOpen ? "hover:bg-white/[0.035]" : "",
                 ].join(" ")}
                 style={isStatic ? undefined : { gridColumn: col, gridRow: row }}
               >
@@ -90,7 +90,7 @@ export function Practice() {
                   <span className="smallcaps">{card.title}</span>
                   <span
                     className={`font-display text-[1.75rem] leading-none transition-colors duration-500 ${
-                      isOpen ? "text-accent-deep" : "group-hover:text-accent-deep"
+                      isOpen ? "text-accent" : "group-hover:text-accent"
                     }`}
                   >
                     {card.index}
@@ -199,7 +199,7 @@ function GridLines({ inView, hover }: { inView: boolean; hover: number | null })
               y={y}
               width={25}
               height={50}
-              stroke="var(--accent-deep)"
+              stroke="var(--accent)"
               strokeOpacity={0.8}
               strokeWidth={1}
               pathLength={100}
