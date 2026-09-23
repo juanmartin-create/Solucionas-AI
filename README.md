@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CAUCE — sitio del estudio
 
-## Getting Started
+Landing cinematográfica controlada por scroll para vender webs, sistemas de cobro/gestión, productos PWA y agentes con IA. Construida con el método de Web Motion Academy.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router, TS) · Tailwind v4 (tokens CSS-first) · GSAP ScrollTrigger · Lenis · motion/react.
+
+## Correr
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev -- -p 3001   # http://localhost:3001
+npm run build            # build de producción
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estructura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Archivo | Qué es |
+|---|---|
+| `src/lib/site.ts` | **Todo el contenido**: nombre del estudio, email, casos, servicios, método. Cambiar el nombre acá lo propaga a todo. |
+| `src/app/globals.css` | Design tokens (`--ground`, `--ink`, `--accent`…), escala tipográfica, utilities `page-shell`, `text-display`, etc. |
+| `src/components/hero/` | Hero scrubbeado: canvas procedural (bocetos → capturas reales) + overlay que sale por sus bordes + cover handoff. |
+| `src/components/Practice.tsx` | "Lo que hacemos": 4 cards en escalera con grilla SVG dibujada. |
+| `src/components/Method.tsx` | "Cómo trabajamos": polyline SVG dibujada por scroll con numeral viajando por `offset-path`. |
+| `src/components/Descent.tsx` | "Casos": stage pinneado de 650vh con 6 casos en crossfade, handoff por negro neutro y "El estudio" adentro del mismo stage. |
+| `src/components/Start.tsx` | "Empezar": tabla de especímenes + formulario de contacto. |
+| `src/components/Footer.tsx` | Footer fijo que la página destapa, wordmark medido edge-to-edge. |
+| `src/app/api/contact/route.ts` | Envío del formulario vía Resend. Sin `RESEND_API_KEY` el formulario abre el `mailto:`. |
+| `public/cases/*.webp` | Capturas de los proyectos reales (1400px, ~70 KB c/u). |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Leyes del sitio
 
-## Learn More
+1. Todo valor de scroll es función pura del progreso del track. Scrollear hacia atrás reconstruye la escena.
+2. Escrituras directas por `ref` desde el callback de scroll, nunca React state (salvo el índice activo).
+3. Reduced motion y viewport ≤ 860px son caminos de primera clase: sin pin, sin scrub, sin descargar el set completo de imágenes.
 
-To learn more about Next.js, take a look at the following resources:
+## Formulario
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Copiar `.env.example` a `.env.local` y cargar `RESEND_API_KEY` (y `CONTACT_FROM` con un dominio verificado). En Vercel o Netlify, las mismas variables van en el panel del proyecto.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
+Vercel: importar el repo y listo. Netlify: usar el runtime de Next.js (se detecta solo).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Reemplazar el hero por video IA (opcional)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+El canvas actual es procedural. Para usar un clip Kling/Runway siguiendo el método del curso: extraer frames con la skill `web-motion-frames` a `public/hero/frames/scrub/frame_%03d.jpg` y reemplazar `renderHero` por el dibujado de la secuencia con lógica `object-fit: cover`. El resto del hero (overlay, ventanas, handoff) no cambia.

@@ -1,26 +1,168 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------
+   Design tokens
+   ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ground: #ece8df; /* fondo de página */
+  --ground-2: #e1dcd0; /* fondo de sección, todo lo posterior al hero */
+  --ink: #15140f;
+  --pitch: #0e0d0b;
+  --muted: #6f6b62;
+  --accent: #1f4e5a; /* agua profunda */
+  --accent-deep: #12313a;
+  --accent-light: #8fb3b8;
+
+  --step-display: clamp(3.25rem, 8.5vw, 8.5rem);
+  --step-h1: clamp(2.25rem, 4.5vw, 4rem);
+  --step-h2: clamp(1.5rem, 2.6vw, 2.25rem);
+  --step-numeral: clamp(2.5rem, 5vw, 5rem);
+  --step-body: 1rem;
+  --step-small: 0.8125rem;
+
+  --content-max: 1440px;
+  --gutter: 24px;
+  --page-margin: clamp(1.5rem, 6vw, 7rem);
+  --section-pad: clamp(6rem, 14vh, 11rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ground: var(--ground);
+  --color-ground-2: var(--ground-2);
+  --color-ink: var(--ink);
+  --color-pitch: var(--pitch);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-light: var(--accent-light);
+
+  /* next/font engancha sus variables en <html>; se declaran acá para que
+     las utilities font-display / font-body no caigan a fuentes del sistema. */
+  --font-display: var(--font-newsreader), "Times New Roman", serif;
+  --font-body: var(--font-instrument), system-ui, sans-serif;
+
+  --ease-out: var(--ease-out);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+html {
+  background: var(--ground);
+  color: var(--ink);
+  scroll-behavior: auto;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ground);
+}
+
+/* ------------------------------------------------------------------
+   Utilities a mano
+   ------------------------------------------------------------------ */
+@utility page-shell {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--page-margin);
+}
+
+@utility text-display {
+  font-family: var(--font-display);
+  font-size: var(--step-display);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+@utility text-h1 {
+  font-family: var(--font-display);
+  font-size: var(--step-h1);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+@utility text-h2 {
+  font-family: var(--font-display);
+  font-size: var(--step-h2);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+@utility text-numeral {
+  font-family: var(--font-display);
+  font-size: var(--step-numeral);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+@utility text-body {
+  font-family: var(--font-body);
+  font-size: var(--step-body);
+  line-height: 1.7;
+}
+
+@utility text-small {
+  font-family: var(--font-body);
+  font-size: var(--step-small);
+  line-height: 1.5;
+}
+
+@utility smallcaps {
+  font-family: var(--font-body);
+  font-size: var(--step-small);
+  line-height: 1.5;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+@utility serif-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion: todas las duraciones a cero
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
