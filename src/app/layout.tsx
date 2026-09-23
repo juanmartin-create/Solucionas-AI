@@ -20,15 +20,15 @@ const instrument = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: `${SITE.name} — ${SITE.tagline}`,
+  title: `${SITE.fullName} · ${SITE.tagline}`,
   description: SITE.description,
   metadataBase: new URL(SITE.url),
   openGraph: {
-    title: `${SITE.name} — ${SITE.tagline}`,
+    title: `${SITE.fullName} · ${SITE.tagline}`,
     description: SITE.description,
     locale: SITE.locale,
     type: "website",
-    siteName: SITE.name,
+    siteName: SITE.fullName,
   },
 };
 

@@ -95,6 +95,9 @@ export function Footer() {
 
       {/* wordmark */}
       <div ref={liftRef} className="absolute inset-x-0 bottom-0 will-change-transform">
+        <div className="smallcaps mb-2 px-[var(--page-margin)] text-accent" style={{ letterSpacing: "0.32em" }}>
+          {SITE.sub}
+        </div>
         <div
           ref={markRef}
           className="inline-block whitespace-nowrap font-display leading-none tracking-[-0.02em]"

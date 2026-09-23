@@ -1,4 +1,4 @@
-# CAUCE — sitio del estudio
+# Nexo — Soluciones AI · sitio del estudio
 
 Landing cinematográfica controlada por scroll para vender webs, sistemas de cobro/gestión, productos PWA y agentes con IA. Construida con el método de Web Motion Academy.
 

@@ -249,7 +249,7 @@ export function Descent() {
                   transition={{ duration: 1, ease: EASE_ARRAY, delay: houseIn ? 0.55 : 0 }}
                   className="text-body max-w-[38ch] text-ink/80"
                 >
-                  CAUCE lo lleva Juan Martín Gómez Delgado desde Buenos Aires. Un estudio
+                  Nexo lo lleva Juan Martín Gómez Delgado desde Buenos Aires. Un estudio
                   chico a propósito: la misma persona que entiende el negocio diseña, construye y
                   publica. Sin intermediarios ni handoffs que diluyan la idea.
                 </motion.p>
@@ -322,7 +322,7 @@ function DescentStatic() {
             El estudio
           </h2>
           <p className="text-body mt-8 max-w-[38ch] text-ink/80">
-            CAUCE lo lleva Juan Martín Gómez Delgado desde Buenos Aires. Un estudio chico a
+            Nexo lo lleva Juan Martín Gómez Delgado desde Buenos Aires. Un estudio chico a
             propósito: la misma persona que entiende el negocio diseña, construye y publica.
           </p>
           <p className="text-body mt-4 max-w-[38ch] text-ink/80">

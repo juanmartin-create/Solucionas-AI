@@ -14,8 +14,9 @@ export function Nav() {
       aria-label="Principal"
     >
       <div className="flex items-center justify-between px-[var(--page-margin)] py-6 text-white">
-        <a href="#" className="smallcaps pointer-events-auto">
-          {SITE.name}
+        <a href="#" className="smallcaps pointer-events-auto flex items-baseline gap-2">
+          <span className="font-medium">{SITE.name}</span>
+          <span className="opacity-60">{SITE.sub}</span>
         </a>
         <div className="pointer-events-auto hidden items-center gap-8 md:flex">
           {LINKS.map(([href, label]) => (

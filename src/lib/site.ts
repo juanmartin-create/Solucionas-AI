@@ -3,11 +3,16 @@
  * wordmark, metadata, footer y emails.
  */
 export const SITE = {
-  name: "CAUCE",
+  /** Wordmark grande (hero y footer). */
+  name: "NEXO",
+  /** Subtítulo que acompaña al wordmark. */
+  sub: "Soluciones AI",
+  /** Nombre completo para metadata, nav y emails. */
+  fullName: "Nexo — Soluciones AI",
   tagline: "Webs, sistemas y agentes que venden solos.",
   description:
     "Estudio digital en Buenos Aires. Diseñamos y construimos webs cinematográficas, sistemas de cobro y gestión, productos PWA y agentes con IA para negocios reales.",
-  url: "https://cauce.studio",
+  url: "https://nexo-solucionesai.netlify.app",
   email: "juanmartin@simplex.la",
   city: "Buenos Aires, Argentina",
   locale: "es_AR",

@@ -146,7 +146,10 @@ export function Hero() {
             <div>
               <Cta />
             </div>
-            <h1 className="text-display mt-6 leading-[0.82] tracking-[-0.02em]">{SITE.name}</h1>
+            <h1 className="mt-6">
+              <span className="smallcaps block text-accent">{SITE.sub}</span>
+              <span className="text-display block leading-[0.82] tracking-[-0.02em]">{SITE.name}</span>
+            </h1>
           </div>
         </div>
         <div className="h-svh bg-ground" aria-hidden />
@@ -222,6 +225,12 @@ export function Hero() {
               color: "transparent",
             }}
           >
+            <span
+              className="smallcaps absolute left-1/2 -translate-x-1/2 text-accent"
+              style={{ top: "-2.2em", fontSize: "var(--step-small)", letterSpacing: "0.32em" }}
+            >
+              {SITE.sub}
+            </span>
             {SITE.name}
           </motion.h1>
         </div>
