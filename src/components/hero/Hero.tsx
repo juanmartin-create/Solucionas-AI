@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { CASES, SITE } from "@/lib/site";
 import { EASE_ARRAY, lerp, win } from "@/lib/gsap";
-import { useStaticPath, isStaticPath } from "@/hooks/useMedia";
+import { useStaticPath } from "@/hooks/useMedia";
 import { useTrackProgress } from "@/hooks/useTrackProgress";
 import { LAYOUT, renderHero, type Screen } from "./heroScene";
 
@@ -48,9 +48,9 @@ export function Hero() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // En mobile / reduced motion solo se cargan dos imágenes (el resto
-    // queda como boceto) para no descargar el set completo.
-    const limit = isStaticPath() ? 2 : CASES.length;
+    // Las seis capturas pesan ~420 KB en total, así que se cargan también en
+    // mobile: un stack completo se ve mejor que bocetos encimados.
+    const limit = CASES.length;
 
     const draw = () => {
       frameReq.current = 0;
