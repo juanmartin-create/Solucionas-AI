@@ -25,9 +25,9 @@ export default function Home() {
         {/* Cover handoff: todo lo posterior se desliza por encima del hero pinneado. */}
         <div className="relative z-10 -mt-[100svh]">
           <Practice />
+          <Descent />
           <ForWho />
           <Method />
-          <Descent />
           <Start />
         </div>
       </main>

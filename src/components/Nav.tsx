@@ -5,32 +5,40 @@ import { SITE } from "@/lib/site";
 
 const LINKS = [
   ["practica", "Práctica"],
-  ["metodo", "Método"],
   ["casos", "Casos"],
+  ["metodo", "Método"],
   ["empezar", "Empezar"],
 ] as const;
 
 export function Nav() {
   const [active, setActive] = useState<string | null>(null);
 
-  // Estado activo: la sección que ocupa el centro del viewport.
+  // Estado activo: la sección que ocupa el centro del viewport. Se busca por id en cada
+  // scroll (no con IntersectionObserver fijo) porque Casos se vuelve a montar al pasar
+  // del camino estático al pinneado y el observer quedaba mirando un nodo viejo.
   useEffect(() => {
-    const ids = LINKS.map(([id]) => id);
-    const sections = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => !!el);
-    if (!sections.length) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setActive(e.target.id);
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-    sections.forEach((s) => io.observe(s));
-    return () => io.disconnect();
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const mid = window.innerHeight / 2;
+      let found: string | null = null;
+      for (const [id] of LINKS) {
+        const r = document.getElementById(id)?.getBoundingClientRect();
+        if (r && r.top <= mid && r.bottom >= mid) found = id;
+      }
+      setActive((a) => (a === found ? a : found));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
