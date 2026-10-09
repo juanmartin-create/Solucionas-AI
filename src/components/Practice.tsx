@@ -5,6 +5,7 @@ import { motion, useInView } from "motion/react";
 import { PRACTICE } from "@/lib/site";
 import { EASE_ARRAY } from "@/lib/gsap";
 import { useStaticPath } from "@/hooks/useMedia";
+import { PracticeFilm } from "./practice-films/PracticeFilm";
 
 /** Posiciones en escalera: (col, fila) 1-indexed. */
 const CELLS = [
@@ -12,6 +13,13 @@ const CELLS = [
   [2, 2],
   [3, 1],
   [4, 2],
+];
+/** Celda libre de la misma columna: ahí corre la animación de cada servicio. */
+const FILM_CELLS = [
+  [1, 2],
+  [2, 1],
+  [3, 2],
+  [4, 1],
 ];
 
 export function Practice() {
@@ -97,6 +105,12 @@ export function Practice() {
                   </span>
                 </div>
 
+                {isStatic && isOpen && (
+                  <div className="mt-6 aspect-[600/760] w-full max-w-[22rem] self-center">
+                    <PracticeFilm index={i} playing={inView} />
+                  </div>
+                )}
+
                 <div className="relative min-h-[6.5rem]">
                   <motion.p
                     key={isOpen ? "open" : "closed"}
@@ -120,6 +134,28 @@ export function Practice() {
               </motion.div>
             );
           })}
+
+          {!isStatic &&
+            PRACTICE.map((card, i) => {
+              const [col, row] = FILM_CELLS[i];
+              const isOpen = open === i;
+              return (
+                <motion.div
+                  key={`film-${card.index}`}
+                  aria-hidden
+                  onClick={() => toggle(i)}
+                  onMouseEnter={() => setHover(i)}
+                  onMouseLeave={() => setHover(null)}
+                  initial={{ opacity: 0 }}
+                  animate={inView ? { opacity: isOpen ? 1 : 0.28 } : undefined}
+                  transition={{ duration: 0.8, ease: EASE_ARRAY, delay: inView && !isOpen ? 0 : 0.2 }}
+                  className="relative z-10 cursor-pointer overflow-hidden p-3"
+                  style={{ gridColumn: col, gridRow: row }}
+                >
+                  <PracticeFilm index={i} playing={inView && isOpen} />
+                </motion.div>
+              );
+            })}
         </div>
       </div>
     </section>

@@ -34,6 +34,12 @@ export function Nav() {
   }, []);
 
   return (
+    <>
+    {/* Velo arriba: lo que scrollea por debajo no se mezcla con los links (la nav usa mix-blend-difference). */}
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-ground via-ground/80 to-transparent"
+    />
     <nav
       className="pointer-events-none fixed inset-x-0 top-0 z-30 mix-blend-difference"
       aria-label="Principal"
@@ -78,5 +84,6 @@ export function Nav() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
