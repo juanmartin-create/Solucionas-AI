@@ -19,12 +19,17 @@
   /* sombra de foto: paralela, desenfocada, hacia gris claro */
   --photo-shadow: 0 28px 70px -12px rgba(220, 214, 200, 0.22), 0 10px 24px -8px rgba(0, 0, 0, 0.6);
 
-  --step-display: clamp(3.25rem, 8.5vw, 8.5rem);
-  --step-h1: clamp(2.25rem, 4.5vw, 4rem);
-  --step-h2: clamp(1.5rem, 2.6vw, 2.25rem);
-  --step-numeral: clamp(2.5rem, 5vw, 5rem);
+  /* Unbounded es ancha: los pasos de display van ~20 % más chicos que con la serif. */
+  --step-display: clamp(2.6rem, 6.8vw, 6.8rem);
+  --step-h1: clamp(1.9rem, 3.6vw, 3.2rem);
+  --step-h2: clamp(1.25rem, 2.1vw, 1.8rem);
+  --step-numeral: clamp(2rem, 4vw, 4rem);
   --step-body: 1rem;
   --step-small: 0.8125rem;
+  --step-mono: 0.75rem;
+
+  /* neón dorado de la palabra destacada */
+  --gold-neon: 0 0 10px rgba(201, 164, 92, 0.45), 0 0 28px rgba(201, 164, 92, 0.22);
 
   --content-max: 1440px;
   --gutter: 24px;
@@ -46,7 +51,9 @@
 
   /* next/font engancha sus variables en <html>; se declaran acá para que
      las utilities font-display / font-body no caigan a fuentes del sistema. */
-  --font-display: var(--font-newsreader), "Times New Roman", serif;
+  --font-display: var(--font-unbounded), "Arial Black", sans-serif;
+  --font-accent: var(--font-newsreader), "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
   --font-body: var(--font-instrument), system-ui, sans-serif;
 
   --ease-out: var(--ease-out);
@@ -69,6 +76,27 @@ body {
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Marca: los títulos van en Unbounded con peso medio y tracking cerrado. */
+.font-display {
+  font-weight: 500;
+  font-feature-settings: "ss01";
+}
+
+/* La palabra destacada: Newsreader itálica dorada con brillo, como en los videos de casos. */
+em,
+.font-display .italic {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+  text-shadow: var(--gold-neon);
+}
+.font-display em {
+  font-size: 1.12em; /* la serif es más chica que Unbounded a igual cuerpo */
+  line-height: 0;
 }
 
 ::selection {
@@ -142,9 +170,9 @@ select option {
 @utility text-display {
   font-family: var(--font-display);
   font-size: var(--step-display);
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 500;
 }
 
 @utility text-h1 {
@@ -152,7 +180,7 @@ select option {
   font-size: var(--step-h1);
   line-height: 1;
   letter-spacing: -0.02em;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 @utility text-h2 {
@@ -160,7 +188,7 @@ select option {
   font-size: var(--step-h2);
   line-height: 1.15;
   letter-spacing: -0.01em;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 @utility text-numeral {
@@ -169,7 +197,7 @@ select option {
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 @utility text-body {
@@ -185,15 +213,16 @@ select option {
 }
 
 @utility smallcaps {
-  font-family: var(--font-body);
-  font-size: var(--step-small);
+  font-family: var(--font-mono);
+  font-size: var(--step-mono);
+  font-weight: 500;
   line-height: 1.5;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 }
 
 @utility serif-italic {
-  font-family: var(--font-display);
+  font-family: var(--font-accent);
   font-style: italic;
 }
 
@@ -205,10 +234,11 @@ select option {
   gap: 0.5rem;
   border-radius: 9999px;
   padding: 0.9rem 1.75rem;
-  font-family: var(--font-body);
-  font-size: var(--step-small);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--font-mono);
+  font-size: var(--step-mono);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--pitch);
   background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
   box-shadow:
@@ -246,10 +276,11 @@ select option {
   min-height: 44px;
   border-radius: 9999px;
   padding: 0.6rem 1.25rem;
-  font-family: var(--font-body);
-  font-size: var(--step-small);
+  font-family: var(--font-mono);
+  font-size: var(--step-mono);
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--ink);
   border: 1px solid rgba(239, 233, 221, 0.22);
   transition:

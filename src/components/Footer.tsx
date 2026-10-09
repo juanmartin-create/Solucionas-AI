@@ -72,7 +72,7 @@ export function Footer() {
         <a href={`mailto:${SITE.email}`} className="text-body -my-1 flex min-h-11 items-center text-ink/70 transition-colors hover:text-ink">
           Contacto
         </a>
-        <p className="text-h2 mt-10 max-w-[26ch] text-ink/80">
+        <p className="text-h2 mt-10 max-w-[30ch] font-light text-ink/80">
           La web que vende, el sistema que cobra y el agente que responde. Publicado y en
           uso.
         </p>
@@ -85,7 +85,7 @@ export function Footer() {
           {FRONTS.map((f) => (
             <div key={f.n} className={`flex items-baseline gap-4 ${f.o}`}>
               <span className="smallcaps">{f.label}</span>
-              <span className="font-display leading-none" style={{ fontSize: "clamp(2rem, 3vw, 3rem)" }}>
+              <span className="font-display leading-none" style={{ fontSize: "clamp(1.6rem, 2.4vw, 2.4rem)" }}>
                 {f.n}
               </span>
             </div>

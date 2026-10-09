@@ -171,7 +171,7 @@ export function Descent() {
         >
           <div
             className="font-display leading-none tracking-[-0.02em] text-ink"
-            style={{ fontSize: "clamp(2.75rem, 7.5vw, 8.5rem)" }}
+            style={{ fontSize: "clamp(1.8rem, 4vw, 4.6rem)" }}
           >
             <Cascade text={current.client} as="h2" />
           </div>
@@ -237,7 +237,7 @@ export function Descent() {
                 <div className="smallcaps text-accent">Casos</div>
                 <h3
                   className="mt-4 font-display leading-[1.04] tracking-[-0.015em] text-ink"
-                  style={{ fontSize: "clamp(1.5rem, 2.1vw, 2.35rem)" }}
+                  style={{ fontSize: "clamp(1.15rem, 1.55vw, 1.85rem)" }}
                 >
                   {current.solution} <em className="italic text-accent">{current.solutionItalic}</em>
                 </h3>
@@ -292,7 +292,7 @@ export function Descent() {
           aria-hidden={!houseIn}
         >
           <div className="page-shell w-full">
-            <div className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
+            <div className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2rem, 4.6vw, 4.4rem)" }}>
               {houseIn ? <Cascade text="El estudio" stagger={0.04} delayChildren={0.1} as="h2" /> : <div className="h-[1em]" />}
             </div>
 
@@ -361,7 +361,7 @@ function DescentStatic() {
       }}
     >
       <div className="page-shell flex flex-col gap-20">
-        <h2 className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
+        <h2 className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2rem, 4.6vw, 4.4rem)" }}>
           Casos
         </h2>
         {FILMS.map((c) => (
@@ -403,7 +403,7 @@ function DescentStatic() {
 
       <div className="mt-32 bg-ground-2 py-24 text-ink">
         <div className="page-shell">
-          <h2 className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
+          <h2 className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2rem, 4.6vw, 4.4rem)" }}>
             El estudio
           </h2>
           <p className="text-body mt-8 max-w-[38ch] text-ink/80">

@@ -167,7 +167,7 @@ export function Method() {
                     <div className="text-numeral mb-2 text-accent">{step.index}</div>
                   )}
                   <div className="text-h1">{step.title}</div>
-                  <div className="text-h2 mt-3 max-w-[30ch]">{step.detail}</div>
+                  <div className="text-h2 mt-3 max-w-[34ch] font-light text-ink/75">{step.detail}</div>
                   <div className="text-small mt-3 opacity-80">{step.time}</div>
                 </div>
               );

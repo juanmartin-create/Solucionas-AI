@@ -19,18 +19,19 @@ const instrument = Instrument_Sans({
   display: "swap",
 });
 
-// Tipografías propias de las animaciones de Práctica (neón): display ancha + mono para datos.
+// Marca: Unbounded (títulos y wordmark) + JetBrains Mono (etiquetas, nav, botones).
+// Newsreader queda solo para la palabra en itálica dorada, el puente con los videos de casos.
 const unbounded = Unbounded({
   variable: "--font-unbounded",
   subsets: ["latin"],
-  weight: ["400", "600", "800"],
+  weight: ["300", "400", "500", "600", "800"],
   display: "swap",
 });
 
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 

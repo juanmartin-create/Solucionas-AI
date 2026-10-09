@@ -272,7 +272,7 @@ export function Heading({
         animate={inView ? { y: 0 } : undefined}
         transition={{ duration: 1.3, ease: EASE_ARRAY }}
         className={`font-display leading-[0.95] tracking-[-0.02em] ${light ? "text-ground" : "text-ink"}`}
-        style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}
+        style={{ fontSize: "clamp(2rem, 4.6vw, 4.4rem)" }}
       >
         {text} {italic && <em className="italic">{italic}</em>}
       </motion.h2>
