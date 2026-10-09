@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { NexoWordmark } from "./brand/NexoLogo";
 import { SITE } from "@/lib/site";
 
 const FRONTS = [
@@ -105,13 +106,9 @@ export function Footer() {
             opacity: 0,
             marginBottom: "-0.21em",
             marginLeft: "-0.02em",
-            backgroundImage: "linear-gradient(to bottom, var(--ink) 30%, var(--accent) 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
           }}
         >
-          {SITE.name}
+          <NexoWordmark fill="gradient" title={SITE.fullName} />
         </div>
       </div>
     </footer>

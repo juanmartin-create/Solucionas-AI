@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { CASES, SITE } from "@/lib/site";
+import { NexoWordmark } from "@/components/brand/NexoLogo";
 import { EASE_ARRAY, lerp, win } from "@/lib/gsap";
 import { useStaticPath } from "@/hooks/useMedia";
 import { useTrackProgress } from "@/hooks/useTrackProgress";
@@ -219,10 +220,6 @@ export function Hero() {
             className="absolute bottom-[0.04em] left-1/2 -translate-x-1/2 whitespace-nowrap font-display leading-none tracking-[-0.02em] will-change-transform"
             style={{
               fontSize: "clamp(3.25rem, min(17.5vw, 34svh), 19rem)",
-              backgroundImage: "linear-gradient(to bottom, var(--ink) 40%, var(--accent) 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
             }}
           >
             <span
@@ -231,7 +228,7 @@ export function Hero() {
             >
               {SITE.sub}
             </span>
-            {SITE.name}
+            <NexoWordmark fill="gradient" title={SITE.fullName} />
           </motion.h1>
         </div>
       </div>

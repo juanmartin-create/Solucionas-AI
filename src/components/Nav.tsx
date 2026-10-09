@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SITE } from "@/lib/site";
+import { NexoIcon, NexoWordmark } from "./brand/NexoLogo";
 
 const LINKS = [
   ["practica", "Práctica"],
@@ -59,7 +60,10 @@ export function Nav() {
           className="smallcaps pointer-events-auto -my-1 flex min-h-11 items-center gap-2 py-3"
           aria-label={SITE.fullName}
         >
-          <span className="font-medium">{SITE.name}</span>
+          <NexoIcon size={22} />
+          <span className="flex items-center" style={{ fontSize: 24 }}>
+            <NexoWordmark glow={false} />
+          </span>
           <span className="hidden opacity-60 sm:inline">{SITE.sub}</span>
         </a>
 
