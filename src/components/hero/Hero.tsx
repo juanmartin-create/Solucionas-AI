@@ -5,7 +5,15 @@ import { motion } from "motion/react";
 import { EASE_ARRAY, win } from "@/lib/gsap";
 import { useReducedMotion, useStaticPath } from "@/hooks/useMedia";
 import { useTrackProgress } from "@/hooks/useTrackProgress";
-import { SATS, createNodeScene, type NodeScene } from "./nodeScene";
+import { createParticleScene, type ParticleScene } from "./particleScene";
+
+/** Color de cada servicio (el mismo de Práctica y "Para quién"). */
+const SERVICE = [
+  { label: "Web que vende", color: "#3fe6ff" },
+  { label: "Cobros online", color: "#3dffaf" },
+  { label: "App propia", color: "#ff4fd8" },
+  { label: "Agente con IA", color: "#ffb340" },
+];
 
 /**
  * Inicio contado con el scroll (método de los reels: una línea de tiempo, un
@@ -67,9 +75,7 @@ export function Hero() {
   const reduced = useReducedMotion();
   const trackRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<NodeScene | null>(null);
-  const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const centerRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<ParticleScene | null>(null);
   const headRef = useRef<HTMLDivElement>(null);
   const headWords = useRef<(HTMLSpanElement | null)[]>([]);
   const restRef = useRef<HTMLDivElement>(null);
@@ -84,31 +90,12 @@ export function Hero() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const scene = createNodeScene(canvas, { still: reduced, compact: isStatic });
+    const scene = createParticleScene(canvas, { still: reduced, compact: isStatic });
     sceneRef.current = scene;
 
-    let raf = 0;
-    const place = () => {
-      scene.labels().forEach((l, i) => {
-        const el = labelRefs.current[i];
-        if (!el) return;
-        const x = Math.min(window.innerWidth - 110, Math.max(110, l.x));
-        el.style.transform = `translate3d(${x}px, ${l.y}px, 0)`;
-        el.style.opacity = String(l.visible);
-      });
-      const c = scene.center();
-      if (centerRef.current) centerRef.current.style.transform = `translate3d(${c.x}px, ${c.y}px, 0)`;
-      raf = requestAnimationFrame(place);
-    };
     const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) {
-        scene.start();
-        if (!raf) raf = requestAnimationFrame(place);
-      } else {
-        scene.stop();
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
+      if (e.isIntersecting) scene.start();
+      else scene.stop();
     });
     io.observe(canvas);
     const ro = new ResizeObserver(() => scene.resize());
@@ -119,7 +106,6 @@ export function Hero() {
       io.disconnect();
       ro.disconnect();
       window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
       scene.dispose();
       sceneRef.current = null;
     };
@@ -131,7 +117,6 @@ export function Hero() {
     (p) => {
       if (isStatic) return;
       const scene = sceneRef.current;
-      scene?.setScroll(p);
 
       // portada: el titular sale palabra por palabra
       headWords.current.forEach((w, i) => {
@@ -158,9 +143,14 @@ export function Hero() {
         if (dot) dot.style.opacity = p >= a && p < b ? "1" : "0.25";
       });
 
-      // portada y cierre: los cuatro hilos encendidos
-      const all = Math.max(1 - win(p, HEAD_OUT[0], CH0), win(p, CLOSE_IN - 0.02, CLOSE_IN + 0.04));
-      scene?.setFocus(focus.map((f) => Math.max(f, all)));
+      // la forma: esfera → web → cobro → app → agente → esfera con órbita.
+      // Cada cambio arranca justo antes de que entre el texto del capítulo.
+      const starts = [...CHAPTERS.map((_, k) => CH0 + k * CH_LEN), CLOSE_IN];
+      const stage = starts.reduce((acc, a) => acc + win(p, a - 0.05, a + 0.03), 0);
+      scene?.setStage(stage);
+      const k = focus.findIndex((f) => f > 0.5);
+      if (k >= 0) scene?.setTint(SERVICE[k].color, 0.9);
+      else scene?.setTint("#c9a45c", 0);
 
       closeParts.current.forEach((el, j) => {
         if (!el) return;
@@ -171,28 +161,6 @@ export function Hero() {
       if (cueRef.current) cueRef.current.style.opacity = String(1 - win(p, 0, 0.05));
     },
     { enabled: !isStatic, rebindKey: isStatic },
-  );
-
-  const labels = (
-    <div className="pointer-events-none absolute inset-0" aria-hidden>
-      {SATS.map((s, i) => (
-        <div
-          key={s.key}
-          ref={(el) => {
-            labelRefs.current[i] = el;
-          }}
-          className="absolute left-0 top-0 will-change-transform"
-          style={{ opacity: 0 }}
-        >
-          <div className="smallcaps -translate-x-1/2 translate-y-6 whitespace-nowrap" style={{ color: s.color, textShadow: `0 0 12px ${s.color}88` }}>
-            {s.label}
-          </div>
-        </div>
-      ))}
-      <div ref={centerRef} className="absolute left-0 top-0 will-change-transform">
-        <div className="smallcaps -translate-x-1/2 whitespace-nowrap text-accent/80">Tu negocio</div>
-      </div>
-    </div>
   );
 
   const ctas = (
@@ -213,7 +181,6 @@ export function Hero() {
         <div className="flex flex-col px-[var(--page-margin)] pb-20 pt-24">
           <div className="relative -mx-[var(--page-margin)] aspect-square w-[calc(100%+2*var(--page-margin))]">
             <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-            {labels}
           </div>
           <div className="smallcaps -mt-4 text-accent">Estudio de soluciones con IA · Buenos Aires</div>
           <h1 className={`${titleCls} mt-5`} style={{ fontSize: "clamp(2.6rem, 11vw, 3.4rem)" }}>
@@ -227,7 +194,7 @@ export function Hero() {
                 <span
                   aria-hidden
                   className="mr-3 inline-block h-2 w-2 -translate-y-1.5 rounded-full"
-                  style={{ background: SATS[c.sat].color, boxShadow: `0 0 10px ${SATS[c.sat].color}` }}
+                  style={{ background: SERVICE[c.sat].color, boxShadow: `0 0 10px ${SERVICE[c.sat].color}` }}
                 />
                 {c.word} {gold(c.line)}
               </li>
@@ -245,7 +212,6 @@ export function Hero() {
       <div className="sticky top-0 h-svh w-full overflow-hidden">
         <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(45% 55% at 70% 50%, rgba(201,164,92,0.11), transparent 70%)" }} />
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-        {labels}
 
         <div className="pointer-events-none absolute inset-y-0 left-[var(--page-margin)] flex w-[min(48rem,50vw)] items-center">
           {/* portada */}
@@ -300,9 +266,9 @@ export function Hero() {
               style={{ visibility: "hidden" }}
               aria-hidden
             >
-              <div className="smallcaps" style={{ color: SATS[c.sat].color }}>
+              <div className="smallcaps" style={{ color: SERVICE[c.sat].color }}>
                 <Masked refFn={(el) => void (chParts.current[k][0] = el)}>
-                  0{k + 1} · {SATS[c.sat].label}
+                  0{k + 1} · {SERVICE[c.sat].label}
                 </Masked>
               </div>
               <div className={`${titleCls} mt-4`} style={{ fontSize: "clamp(4.5rem, 9vw, 9.5rem)" }}>
@@ -336,7 +302,7 @@ export function Hero() {
                 dotsRef.current[k] = el;
               }}
               className="h-[3px] w-8 rounded-full transition-opacity duration-300"
-              style={{ background: SATS[c.sat].color, opacity: 0.25 }}
+              style={{ background: SERVICE[c.sat].color, opacity: 0.25 }}
             />
           ))}
         </div>
