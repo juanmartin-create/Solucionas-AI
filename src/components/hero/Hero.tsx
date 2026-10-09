@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { EASE_ARRAY, lerp, win } from "@/lib/gsap";
+import { EASE_ARRAY, win } from "@/lib/gsap";
 import { useReducedMotion, useStaticPath } from "@/hooks/useMedia";
 import { useTrackProgress } from "@/hooks/useTrackProgress";
 import { SATS, createNodeScene, type NodeScene } from "./nodeScene";
 
-const ENTER = { duration: 0.9, ease: EASE_ARRAY };
+/**
+ * Inicio contado con el scroll (método de los reels: una línea de tiempo, un
+ * concepto por vez). Titular → Webs → Sistemas → Apps → Agentes → cierre.
+ * Cada capítulo enciende su hilo en el nodo dorado; el resto queda tenue.
+ */
 
-/** Titular palabra por palabra: [palabra, va en itálica dorada]. */
-const HEADLINE: [string, boolean][] = [
+const HEAD: [string, boolean][] = [
   ["Webs,", false],
   ["sistemas", false],
   ["y", false],
@@ -20,26 +23,62 @@ const HEADLINE: [string, boolean][] = [
   ["solos.", true],
 ];
 
-function setHidden(el: HTMLElement, opacity: number) {
-  el.style.opacity = String(opacity);
-  el.style.visibility = opacity < 0.02 ? "hidden" : "visible";
+/** Capítulos: palabra grande, remate en itálica dorada y qué hilo enciende. */
+const CHAPTERS = [
+  { word: "Webs", line: "que reciben consultas las 24 h.", sat: 0 },
+  { word: "Sistemas", line: "que cobran con Mercado Pago.", sat: 1 },
+  { word: "Apps", line: "que tus clientes usan todos los días.", sat: 2 },
+  { word: "Agentes", line: "que venden por chat.", sat: 3 },
+];
+
+// Ventanas del relato sobre el progreso p (0→1) del track.
+const HEAD_OUT: [number, number] = [0.06, 0.13];
+const CH0 = 0.14;
+const CH_LEN = 0.16;
+const CLOSE_IN = CH0 + CH_LEN * 4; // 0.78
+
+const ENTER = { duration: 0.9, ease: EASE_ARRAY };
+const o5 = (x: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 5);
+
+/** Máscara: la pieza sube desde abajo (135 %) y se va por arriba. */
+function maskY(p: number, inA: number, inB: number, outA: number, outB: number) {
+  return (1 - o5(win(p, inA, inB))) * 135 - o5(win(p, outA, outB)) * 135;
 }
 
-/**
- * Inicio: titular + el nodo dorado 3D de la marca. El nodo conecta con hilos de
- * neón los cuatro servicios y reacciona al scroll (se acerca y gira) y al mouse.
- */
+function setVis(el: HTMLElement | null, on: boolean) {
+  if (el) el.style.visibility = on ? "visible" : "hidden";
+}
+
+const titleCls = "font-accent font-normal leading-[0.98] tracking-[-0.025em] text-ink";
+const gold = (s: string) => <em className="[text-shadow:none]">{s}</em>;
+
+function Masked({ children, refFn }: { children: ReactNode; refFn: (el: HTMLSpanElement | null) => void }) {
+  return (
+    <span className="inline-block overflow-hidden pb-[0.14em] align-top">
+      <span ref={refFn} className="inline-block will-change-transform" style={{ transform: "translate3d(0,135%,0)" }}>
+        {children}
+      </span>
+    </span>
+  );
+}
+
 export function Hero() {
   const isStatic = useStaticPath();
   const reduced = useReducedMotion();
   const trackRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
-  const cueRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<NodeScene | null>(null);
   const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const centerRef = useRef<HTMLDivElement>(null);
-  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const sceneRef = useRef<NodeScene | null>(null);
+  const headRef = useRef<HTMLDivElement>(null);
+  const headWords = useRef<(HTMLSpanElement | null)[]>([]);
+  const restRef = useRef<HTMLDivElement>(null);
+  const chRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const chParts = useRef<(HTMLSpanElement | null)[][]>(CHAPTERS.map(() => []));
+  const closeRef = useRef<HTMLDivElement>(null);
+  const closeParts = useRef<(HTMLSpanElement | null)[]>([]);
+  const dotsRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const cueRef = useRef<HTMLDivElement>(null);
 
   /* ---------------- escena 3D ---------------- */
   useEffect(() => {
@@ -48,26 +87,19 @@ export function Hero() {
     const scene = createNodeScene(canvas, { still: reduced, compact: isStatic });
     sceneRef.current = scene;
 
-    // etiquetas HTML que siguen a los satélites
     let raf = 0;
     const place = () => {
       scene.labels().forEach((l, i) => {
         const el = labelRefs.current[i];
         if (!el) return;
-        // que la etiqueta nunca se corte contra el borde
         const x = Math.min(window.innerWidth - 110, Math.max(110, l.x));
         el.style.transform = `translate3d(${x}px, ${l.y}px, 0)`;
         el.style.opacity = String(l.visible);
       });
       const c = scene.center();
-      if (centerRef.current) {
-        centerRef.current.style.transform = `translate3d(${c.x}px, ${c.y}px, 0)`;
-        centerRef.current.style.opacity = String(c.visible);
-      }
+      if (centerRef.current) centerRef.current.style.transform = `translate3d(${c.x}px, ${c.y}px, 0)`;
       raf = requestAnimationFrame(place);
     };
-
-    // solo se dibuja mientras el inicio está en pantalla
     const io = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
         scene.start();
@@ -79,12 +111,10 @@ export function Hero() {
       }
     });
     io.observe(canvas);
-
     const ro = new ResizeObserver(() => scene.resize());
     ro.observe(canvas);
     const onMove = (e: PointerEvent) => scene.setPointer(e.clientX / window.innerWidth - 0.5, e.clientY / window.innerHeight - 0.5);
     window.addEventListener("pointermove", onMove);
-
     return () => {
       io.disconnect();
       ro.disconnect();
@@ -95,82 +125,52 @@ export function Hero() {
     };
   }, [isStatic, reduced]);
 
-  /* ---------------- scroll ---------------- */
+  /* ---------------- relato con el scroll: todo es función pura de p ---------------- */
   useTrackProgress(
     trackRef,
     (p) => {
       if (isStatic) return;
-      sceneRef.current?.setScroll(p);
-      // salida cinética: cada palabra sube y se apaga con un pequeño desfase
-      wordRefs.current.forEach((w, i) => {
+      const scene = sceneRef.current;
+      scene?.setScroll(p);
+
+      // portada: el titular sale palabra por palabra
+      headWords.current.forEach((w, i) => {
         if (!w) return;
-        const t = win(p, 0.015 + i * 0.008, 0.11 + i * 0.008);
-        w.style.transform = `translate3d(0, ${lerp(0, -110, t * t)}%, 0)`;
-        w.style.opacity = String(1 - t);
+        const d = i * 0.006;
+        w.style.transform = `translate3d(0, ${maskY(p, -1, -0.5, HEAD_OUT[0] + d, HEAD_OUT[1] + d)}%, 0)`;
       });
-      if (copyRef.current) {
-        const t = win(p, 0.06, 0.2);
-        copyRef.current.style.setProperty("--rest", String(1 - t));
-        setHidden(copyRef.current, p > 0.21 ? 0 : 1);
-      }
-      if (cueRef.current) setHidden(cueRef.current, 1 - win(p, 0, 0.08));
+      if (restRef.current) restRef.current.style.opacity = String(1 - win(p, HEAD_OUT[0] - 0.02, HEAD_OUT[0] + 0.03));
+      setVis(headRef.current, p < HEAD_OUT[1] + 0.05);
+
+      // capítulos
+      const focus = [0, 0, 0, 0];
+      CHAPTERS.forEach((c, k) => {
+        const a = CH0 + k * CH_LEN;
+        const b = a + CH_LEN;
+        chParts.current[k].forEach((el, j) => {
+          if (!el) return;
+          const d = j * 0.012;
+          el.style.transform = `translate3d(0, ${maskY(p, a + d, a + 0.04 + d, b - 0.035 + d * 0.3, b - 0.004 + d * 0.3)}%, 0)`;
+        });
+        setVis(chRefs.current[k], p > a - 0.01 && p < b + 0.02);
+        focus[c.sat] = Math.max(focus[c.sat], win(p, a, a + 0.04) * (1 - win(p, b - 0.03, b)));
+        const dot = dotsRef.current[k];
+        if (dot) dot.style.opacity = p >= a && p < b ? "1" : "0.25";
+      });
+
+      // portada y cierre: los cuatro hilos encendidos
+      const all = Math.max(1 - win(p, HEAD_OUT[0], CH0), win(p, CLOSE_IN - 0.02, CLOSE_IN + 0.04));
+      scene?.setFocus(focus.map((f) => Math.max(f, all)));
+
+      closeParts.current.forEach((el, j) => {
+        if (!el) return;
+        const d = j * 0.012;
+        el.style.transform = `translate3d(0, ${maskY(p, CLOSE_IN + d, CLOSE_IN + 0.06 + d, 2, 3)}%, 0)`;
+      });
+      setVis(closeRef.current, p > CLOSE_IN - 0.01);
+      if (cueRef.current) cueRef.current.style.opacity = String(1 - win(p, 0, 0.05));
     },
     { enabled: !isStatic, rebindKey: isStatic },
-  );
-
-  const copy = (
-    <>
-      <div className="smallcaps text-accent">Estudio de soluciones con IA · Buenos Aires</div>
-      <h1
-        className="mt-6 font-display leading-[1.06] tracking-[-0.03em] text-ink"
-        style={{ fontSize: isStatic ? "clamp(2.2rem, 9vw, 3rem)" : "clamp(2.4rem, 4.6vw, 5rem)" }}
-        aria-label="Webs, sistemas y agentes que venden solos."
-      >
-        {HEADLINE.map(([w, gold], i) => (
-          <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-top" style={{ marginRight: "0.24em" }}>
-            {/* entrada: la palabra sube desde abajo de su máscara */}
-            <motion.span
-              className="inline-block"
-              initial={{ y: "110%", rotate: 4 }}
-              animate={{ y: "0%", rotate: 0 }}
-              transition={{ type: "spring", stiffness: 120, damping: 18, mass: 0.9, delay: 0.25 + i * 0.07 }}
-            >
-              <span
-                ref={(el) => {
-                  wordRefs.current[i] = el;
-                }}
-                className="inline-block will-change-transform"
-              >
-                {gold ? <em>{w}</em> : w}
-              </span>
-            </motion.span>
-          </span>
-        ))}
-      </h1>
-      <div style={{ opacity: "var(--rest, 1)" }}>
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...ENTER, delay: 0.95 }}
-        className="smallcaps mt-8 max-w-[44ch] leading-[1.9] text-ink/60"
-      >
-        Para constructoras, barberías, gimnasios y e-commerce.
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...ENTER, delay: 1.1 }}
-        className="pointer-events-auto mt-10 flex flex-wrap items-center gap-3"
-      >
-        <a href="#empezar" className="btn btn-hover">
-          Agendá un diagnóstico
-        </a>
-        <a href="#casos" className="btn-ghost">
-          Ver los casos
-        </a>
-      </motion.div>
-      </div>
-    </>
   );
 
   const labels = (
@@ -184,54 +184,161 @@ export function Hero() {
           className="absolute left-0 top-0 will-change-transform"
           style={{ opacity: 0 }}
         >
-          <div className="-translate-x-1/2 translate-y-6 whitespace-nowrap rounded-lg border border-white/10 bg-black/55 px-3 py-1.5 text-center backdrop-blur-sm">
-            <div className="smallcaps" style={{ color: s.color, textShadow: `0 0 12px ${s.color}88` }}>
-              {s.label}
-            </div>
-            <div className="mt-1 font-mono text-[0.68rem] tracking-[0.06em] text-ink/55">{s.sub}</div>
+          <div className="smallcaps -translate-x-1/2 translate-y-6 whitespace-nowrap" style={{ color: s.color, textShadow: `0 0 12px ${s.color}88` }}>
+            {s.label}
           </div>
         </div>
       ))}
-      <div ref={centerRef} className="absolute left-0 top-0 will-change-transform" style={{ opacity: 0 }}>
-        <div className="smallcaps -translate-x-1/2 whitespace-nowrap rounded-full border border-accent/50 bg-black/40 px-3 py-1 text-accent backdrop-blur-sm">
-          Tu negocio
-        </div>
+      <div ref={centerRef} className="absolute left-0 top-0 will-change-transform">
+        <div className="smallcaps -translate-x-1/2 whitespace-nowrap text-accent/80">Tu negocio</div>
       </div>
     </div>
+  );
+
+  const ctas = (
+    <>
+      <a href="#empezar" className="btn btn-hover">
+        Agendá un diagnóstico
+      </a>
+      <a href="#casos" className="btn-ghost">
+        Ver los casos
+      </a>
+    </>
   );
 
   /* ---------------- mobile / reduced motion: sin pin ---------------- */
   if (isStatic) {
     return (
       <section ref={trackRef} className="relative bg-ground" aria-label="Inicio">
-        <div className="flex min-h-svh flex-col px-[var(--page-margin)] pb-16 pt-24">
+        <div className="flex flex-col px-[var(--page-margin)] pb-20 pt-24">
           <div className="relative -mx-[var(--page-margin)] aspect-square w-[calc(100%+2*var(--page-margin))]">
             <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
             {labels}
           </div>
-          <div className="-mt-6">{copy}</div>
+          <div className="smallcaps -mt-4 text-accent">Estudio de soluciones con IA · Buenos Aires</div>
+          <h1 className={`${titleCls} mt-5`} style={{ fontSize: "clamp(2.6rem, 11vw, 3.4rem)" }}>
+            Webs, sistemas y agentes {gold("que venden solos.")}
+          </h1>
+          <p className="smallcaps mt-6 leading-[1.9] text-ink/60">Para constructoras, barberías, gimnasios y e-commerce.</p>
+          <div className="mt-8 flex flex-wrap gap-3">{ctas}</div>
+          <ul className="mt-16 flex flex-col gap-6 border-t border-white/10 pt-8">
+            {CHAPTERS.map((c) => (
+              <li key={c.word} className={titleCls} style={{ fontSize: "1.9rem" }}>
+                <span
+                  aria-hidden
+                  className="mr-3 inline-block h-2 w-2 -translate-y-1.5 rounded-full"
+                  style={{ background: SATS[c.sat].color, boxShadow: `0 0 10px ${SATS[c.sat].color}` }}
+                />
+                {c.word} {gold(c.line)}
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="h-svh bg-ground" aria-hidden />
       </section>
     );
   }
 
-  /* ---------------- escritorio: pinneado, el nodo se mueve con el scroll ---------------- */
+  /* ---------------- escritorio: pinneado, contado con el scroll ---------------- */
   return (
-    <section ref={trackRef} className="relative bg-ground" style={{ height: "calc(220vh + 100svh)" }} aria-label="Inicio">
+    <section ref={trackRef} className="relative bg-ground" style={{ height: "calc(420vh + 100svh)" }} aria-label="Inicio">
       <div className="sticky top-0 h-svh w-full overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{ background: "radial-gradient(45% 55% at 68% 50%, rgba(201,164,92,0.12), transparent 70%)" }}
-        />
+        <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(45% 55% at 70% 50%, rgba(201,164,92,0.11), transparent 70%)" }} />
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         {labels}
 
-        <div className="pointer-events-none absolute inset-0 flex items-center">
-          <div ref={copyRef} className="ml-[var(--page-margin)] w-[min(46rem,52vw)]">
-            {copy}
+        <div className="pointer-events-none absolute inset-y-0 left-[var(--page-margin)] flex w-[min(48rem,50vw)] items-center">
+          {/* portada */}
+          <div ref={headRef} className="absolute inset-x-0">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ ...ENTER, delay: 0.1 }} className="smallcaps text-accent">
+              Estudio de soluciones con IA · Buenos Aires
+            </motion.div>
+            <h1 className={`${titleCls} mt-6`} style={{ fontSize: "clamp(3rem, 5.6vw, 6.2rem)" }} aria-label="Webs, sistemas y agentes que venden solos.">
+              {HEAD.map(([w, isGold], i) => (
+                <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.14em] align-top" style={{ marginRight: "0.22em" }}>
+                  <motion.span
+                    className="inline-block"
+                    initial={{ y: "135%" }}
+                    animate={{ y: "0%" }}
+                    transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1, delay: 0.25 + i * 0.06 }}
+                  >
+                    <span
+                      ref={(el) => {
+                        headWords.current[i] = el;
+                      }}
+                      className="inline-block will-change-transform"
+                    >
+                      {isGold ? gold(w) : w}
+                    </span>
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
+            <div ref={restRef}>
+              <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...ENTER, delay: 0.9 }} className="smallcaps mt-8 leading-[1.9] text-ink/60">
+                Para constructoras, barberías, gimnasios y e-commerce.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...ENTER, delay: 1.05 }}
+                className="pointer-events-auto mt-10 flex flex-wrap items-center gap-3"
+              >
+                {ctas}
+              </motion.div>
+            </div>
           </div>
+
+          {/* capítulos: una idea por vez */}
+          {CHAPTERS.map((c, k) => (
+            <div
+              key={c.word}
+              ref={(el) => {
+                chRefs.current[k] = el;
+              }}
+              className="absolute inset-x-0"
+              style={{ visibility: "hidden" }}
+              aria-hidden
+            >
+              <div className="smallcaps" style={{ color: SATS[c.sat].color }}>
+                <Masked refFn={(el) => void (chParts.current[k][0] = el)}>
+                  0{k + 1} · {SATS[c.sat].label}
+                </Masked>
+              </div>
+              <div className={`${titleCls} mt-4`} style={{ fontSize: "clamp(4.5rem, 9vw, 9.5rem)" }}>
+                <Masked refFn={(el) => void (chParts.current[k][1] = el)}>{c.word}</Masked>
+              </div>
+              <div className={`${titleCls} mt-1`} style={{ fontSize: "clamp(1.8rem, 2.8vw, 3rem)" }}>
+                <Masked refFn={(el) => void (chParts.current[k][2] = el)}>{gold(c.line)}</Masked>
+              </div>
+            </div>
+          ))}
+
+          {/* cierre */}
+          <div ref={closeRef} className="absolute inset-x-0" style={{ visibility: "hidden" }} aria-hidden>
+            <div className={titleCls} style={{ fontSize: "clamp(3rem, 5.6vw, 6.2rem)" }}>
+              <div>
+                <Masked refFn={(el) => void (closeParts.current[0] = el)}>Todo conectado</Masked>
+              </div>
+              <div>
+                <Masked refFn={(el) => void (closeParts.current[1] = el)}>{gold("a tu negocio.")}</Masked>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* índice de capítulos */}
+        <div className="pointer-events-none absolute bottom-10 left-[var(--page-margin)] flex gap-2" aria-hidden>
+          {CHAPTERS.map((c, k) => (
+            <span
+              key={c.word}
+              ref={(el) => {
+                dotsRef.current[k] = el;
+              }}
+              className="h-[3px] w-8 rounded-full transition-opacity duration-300"
+              style={{ background: SATS[c.sat].color, opacity: 0.25 }}
+            />
+          ))}
         </div>
 
         <div ref={cueRef} className="smallcaps pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 text-ink/50">

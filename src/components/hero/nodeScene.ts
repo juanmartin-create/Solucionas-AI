@@ -34,12 +34,13 @@ function glowTexture(color: string) {
 }
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-const win = (x: number, a: number, b: number) => clamp01((x - a) / (b - a));
 const ease = (x: number) => 1 - Math.pow(1 - clamp01(x), 3);
 
 export type NodeScene = {
   setScroll: (p: number) => void;
   setPointer: (x: number, y: number) => void;
+  /** Cuánto se ilumina cada hilo (0→1), en el orden de SATS. */
+  setFocus: (w: number[]) => void;
   resize: () => void;
   /** Posiciones en pantalla (px) de los satélites, para las etiquetas HTML. */
   labels: () => { x: number; y: number; visible: number }[];
@@ -146,6 +147,8 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
   // ---- estado ----
   let scroll = 0; // valor suavizado que usa la escena
   let target = 0; // valor real del scroll
+  const wTarget = [1, 1, 1, 1];
+  const wCur = [0, 0, 0, 0];
   let px = 0,
     py = 0,
     sx = 0,
@@ -172,35 +175,37 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
     scroll += (target - scroll) * (opts.still ? 1 : 0.075);
     if (Math.abs(target - scroll) < 1e-4) scroll = target;
 
-    // scroll: la cámara se acerca y el mundo gira; al final el nodo llena la pantalla
-    const s1 = ease(win(scroll, 0, 0.55));
-    const s2 = ease(win(scroll, 0.55, 1));
-    world.rotation.y = t * 0.12 + s1 * 1.4 + sx * 0.35;
-    world.rotation.x = -0.12 + s1 * 0.25 + sy * 0.2;
-    const baseZ = opts.compact ? 9.5 : 9.2;
-    camera.position.z = baseZ - s1 * 2.2 - s2 * 3.4;
-    world.position.x = opts.compact ? 0 : 2.35 * (1 - s1);
+    // foco: cuánto se ilumina cada hilo (lo decide el relato del scroll), amortiguado
+    for (let i = 0; i < 4; i++) wCur[i] += (wTarget[i] - wCur[i]) * (opts.still ? 1 : 0.08);
 
-    const breathe = 1 + Math.sin(t * 1.6) * 0.025;
-    node.scale.setScalar(breathe * (1 + s2 * 0.6));
-    halo.material.opacity = 0.45 + 0.15 * Math.sin(t * 1.6) + s2 * 0.4;
-    rings[0].rotation.z = t * 0.35;
-    rings[1].rotation.z = -t * 0.25;
-    rings.forEach((r) => ((r.material as THREE.MeshStandardMaterial).opacity = 1));
+    // movimiento calmo: giro lento, leve acercamiento con el scroll, sigue al mouse
+    world.rotation.y = t * 0.06 + scroll * 0.9 + sx * 0.3;
+    world.rotation.x = -0.12 + sy * 0.18;
+    const baseZ = opts.compact ? 9.5 : 9.2;
+    camera.position.z = baseZ - scroll * 0.9;
+    world.position.x = opts.compact ? 0 : 2.35;
+
+    const breathe = 1 + Math.sin(t * 1.4) * 0.02;
+    node.scale.setScalar(breathe);
+    halo.material.opacity = 0.42 + 0.12 * Math.sin(t * 1.4);
+    rings[0].rotation.z = t * 0.22;
+    rings[1].rotation.z = -t * 0.16;
 
     threads.forEach((th, i) => {
       const grow = clamp01(intro * 1.15 - i * 0.05);
       th.tube.geometry.setDrawRange(0, Math.floor(th.total * grow) - (Math.floor(th.total * grow) % 3));
-      const out = 1 - s2;
-      (th.tube.material as THREE.MeshBasicMaterial).opacity = 0.9 * out;
-      const on = grow >= 0.98 ? out : 0;
-      th.sat.visible = on > 0.01;
-      th.satGlow.material.opacity = on * (0.7 + 0.3 * Math.sin(t * 2 + i));
+      const w = wCur[i];
+      (th.tube.material as THREE.MeshBasicMaterial).opacity = 0.12 + 0.85 * w;
+      const on = grow >= 0.98 ? 1 : 0;
+      th.sat.visible = on > 0;
+      th.sat.scale.setScalar(0.7 + 0.6 * w);
+      th.satGlow.material.opacity = on * (0.15 + 0.85 * w) * (0.8 + 0.2 * Math.sin(t * 2 + i));
+      th.satGlow.scale.setScalar(0.6 + 0.8 * w);
       th.pulses.forEach((p, k) => {
-        const u = 1 - (((t * 0.35 + k / 3 + i * 0.13) % 1) + 1) % 1; // del satélite al nodo
+        const u = 1 - (((t * 0.3 + k / 3 + i * 0.13) % 1) + 1) % 1; // del satélite al nodo
         th.curve.getPointAt(u, v);
         p.position.copy(v);
-        p.material.opacity = on * Math.sin(Math.PI * u);
+        p.material.opacity = on * w * Math.sin(Math.PI * u);
       });
     });
 
@@ -212,8 +217,8 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
   function labels() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
-    const out = 1 - ease(win(scroll, 0.55, 0.8));
-    return threads.map((th) => {
+    return threads.map((th, i) => {
+      const out = wCur[i];
       th.sat.getWorldPosition(v);
       v.project(camera);
       return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h, visible: th.sat.visible ? out : 0 };
@@ -225,6 +230,10 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
     setScroll(p) {
       target = p;
       if (opts.still) scroll = p;
+      if (opts.still) frame(performance.now());
+    },
+    setFocus(w) {
+      for (let i = 0; i < 4; i++) wTarget[i] = w[i] ?? 0;
       if (opts.still) frame(performance.now());
     },
     setPointer(x, y) {
@@ -242,7 +251,7 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
       node.getWorldPosition(v);
       v.y -= 1.45;
       v.project(camera);
-      return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h, visible: 1 - ease(win(scroll, 0.3, 0.5)) };
+      return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h, visible: 1 };
     },
     start() {
       if (running) return;
