@@ -96,6 +96,110 @@ export const CASES: CaseStudy[] = [
   },
 ];
 
+/**
+ * Casos en video (sección "Casos"). El título es el tipo de solución, no el
+ * cliente: el que mira tiene que reconocer lo que necesita su negocio.
+ * `status` es honesto: "Demo" cuando no hay cliente real detrás.
+ */
+export type CaseFilm = {
+  id: string;
+  index: string;
+  solution: string;
+  solutionItalic: string;
+  client: string;
+  points: [string, string, string];
+  status: string;
+  live: boolean;
+  video: string;
+  poster: string;
+  duration: string;
+  href?: string;
+  glow: string; // rgba del glow detrás de la pantalla en el stage de casos
+  /** Segundo desde el que corre el preview mudo (después de la placa y el gancho). */
+  previewFrom: number;
+};
+
+export const CASE_FILMS: CaseFilm[] = [
+  {
+    id: "barbershop",
+    index: "01",
+    solution: "Landing + cobro online",
+    solutionItalic: "y panel de gestión.",
+    client: "Buenos Aires Barbershop",
+    points: ["Gift cards pagadas con Mercado Pago", "Código por email al instante", "Panel para validar cada canje"],
+    status: "Cliente real",
+    live: true,
+    video: "/cases/films/01-barbershop.mp4",
+    poster: "/cases/films/01-barbershop.jpg",
+    previewFrom: 3,
+    glow: "rgba(232, 177, 112, 0.42)",
+    duration: "0:25",
+    href: "https://buenosairesbarbershop.com",
+  },
+  {
+    id: "selene",
+    index: "02",
+    solution: "Web de lujo",
+    solutionItalic: "que lleva a la consulta.",
+    client: "Selene Experiences",
+    points: ["Recorrido editorial a medida", "Consulta en español e inglés", "Marca premium, cero plantillas"],
+    status: "En producción",
+    live: true,
+    video: "/cases/films/02-selene.mp4",
+    poster: "/cases/films/02-selene.jpg",
+    previewFrom: 3,
+    glow: "rgba(190, 150, 190, 0.40)",
+    duration: "0:30",
+    href: "https://selene-experiences.netlify.app",
+  },
+  {
+    id: "constructora",
+    index: "03",
+    solution: "Web que vende el proyecto",
+    solutionItalic: "antes de la visita.",
+    client: "Constructora Norte",
+    points: ["Antes/después y plano interactivo", "Cuota calculada al instante", "Visita agendada desde la web"],
+    status: "Demo",
+    live: false,
+    video: "/cases/films/03-constructora.mp4",
+    poster: "/cases/films/03-constructora.jpg",
+    previewFrom: 5.6,
+    glow: "rgba(120, 150, 180, 0.40)",
+    duration: "0:31",
+    href: "https://constructora-norte.netlify.app",
+  },
+  {
+    id: "cadence",
+    index: "04",
+    solution: "Plataforma B2B2C",
+    solutionItalic: "para gimnasios y coaches.",
+    client: "Cadence",
+    points: ["Panel del coach con su marca", "App propia para cada alumno", "Reporte semanal por WhatsApp"],
+    status: "Demo · datos de ejemplo",
+    live: false,
+    video: "/cases/films/04-cadence.mp4",
+    poster: "/cases/films/04-cadence.jpg",
+    previewFrom: 5.6,
+    glow: "rgba(201, 164, 92, 0.36)",
+    duration: "0:30",
+  },
+  {
+    id: "modi",
+    index: "05",
+    solution: "Agente con IA",
+    solutionItalic: "que vende.",
+    client: "Modi para Ecomodico",
+    points: ["Recomienda con precios reales", "Cross-selling y agrega al carrito", "Te acompaña hasta el pago"],
+    status: "Prototipo funcional",
+    live: false,
+    video: "/cases/films/05-modi.mp4",
+    poster: "/cases/films/05-modi.jpg",
+    previewFrom: 3,
+    glow: "rgba(70, 150, 230, 0.40)",
+    duration: "0:34",
+  },
+];
+
 export const PRACTICE = [
   {
     index: "01",

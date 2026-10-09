@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { CASES } from "@/lib/site";
+import { CASE_FILMS as FILMS, type CaseFilm } from "@/lib/site";
 import { EASE_ARRAY, lerp, win, clamp01 } from "@/lib/gsap";
 import { useStaticPath } from "@/hooks/useMedia";
 import { useTrackProgress } from "@/hooks/useTrackProgress";
 import { Cascade } from "./Cascade";
+import { CaseLightbox, PlayBadge } from "./CaseLightbox";
 
-const N = CASES.length;
+const N = FILMS.length;
 const XF = 0.04; // semiventana del crossfade
 
 /** Opacidad del caso i como función pura del progreso del descenso (0→1). */
@@ -46,11 +47,26 @@ export function Descent() {
 
   const [active, setActive] = useState(0);
   const [houseIn, setHouseIn] = useState(false);
+  const [open, setOpen] = useState<CaseFilm | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  // Solo corre el preview mudo del caso activo, y arranca después de la placa.
+  useEffect(() => {
+    if (isStatic) return;
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === active && !houseIn) {
+        const from = FILMS[i].previewFrom;
+        if (v.currentTime < from) v.currentTime = from;
+        v.play().catch(() => {});
+      } else v.pause();
+    });
+  }, [active, houseIn, isStatic]);
 
   useTrackProgress(
     trackRef,
     (p) => {
-      // Los seis pasos ocurren en el primer 60% del track.
+      // Los pasos de los casos ocurren en el primer 60% del track.
       const d = win(p, 0, 0.6);
 
       // renders + glows
@@ -106,7 +122,7 @@ export function Descent() {
     { enabled: !isStatic, rebindKey: isStatic },
   );
 
-  const current = CASES[active];
+  const current = FILMS[active];
 
   if (isStatic) return <DescentStatic />;
 
@@ -129,7 +145,7 @@ export function Descent() {
       >
         {/* glow radial: la sala iluminada por la pantalla */}
         <div ref={glowWrapRef} className="absolute inset-0" aria-hidden>
-          {CASES.map((c, i) => (
+          {FILMS.map((c, i) => (
             <div
               key={c.id}
               ref={(el) => {
@@ -157,56 +173,92 @@ export function Descent() {
             className="font-display leading-none tracking-[-0.02em] text-ink"
             style={{ fontSize: "clamp(2.75rem, 7.5vw, 8.5rem)" }}
           >
-            <Cascade text={current.name} as="h2" />
+            <Cascade text={current.client} as="h2" />
           </div>
         </div>
 
-        {/* pantalla central */}
+        {/* pantalla central: el video del caso activo; click = caso completo con sonido */}
         <div
           ref={screenRef}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 will-change-transform"
-          style={{ width: "min(50vw, calc(58vh * 1.4))", aspectRatio: "1.4" }}
+          style={{ width: "min(50vw, calc(56vh * 16 / 9))", aspectRatio: "16 / 9" }}
         >
-          {CASES.map((c, i) => (
+          {FILMS.map((c, i) => (
             <div
               key={c.id}
               ref={(el) => {
                 imgRefs.current[i] = el;
               }}
               className="photo absolute inset-0"
-              style={{ opacity: i === 0 ? 1 : 0 }}
+              style={{ opacity: i === 0 ? 1 : 0, pointerEvents: i === active ? "auto" : "none" }}
             >
-              <img
-                src={c.image}
-                alt={`${c.name}: ${c.kind}`}
-                className="h-full w-full object-cover object-top"
-                loading={i < 2 ? "eager" : "lazy"}
-              />
+              <button
+                type="button"
+                onClick={() => setOpen(c)}
+                aria-label={`Ver el caso ${c.client} con sonido`}
+                tabIndex={i === active ? 0 : -1}
+                className="group relative block h-full w-full cursor-pointer bg-black outline-none focus-visible:ring-1 focus-visible:ring-accent"
+              >
+                <video
+                  ref={(el) => {
+                    videoRefs.current[i] = el;
+                  }}
+                  src={c.video}
+                  poster={c.poster}
+                  muted
+                  loop
+                  playsInline
+                  preload={i < 2 ? "auto" : "metadata"}
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                <PlayBadge duration={c.duration} />
+              </button>
             </div>
           ))}
         </div>
 
-        {/* riel izquierdo: la línea del caso activo */}
+        {/* riel izquierdo: qué tipo de solución es el caso activo */}
         <div
           ref={leftRef}
-          className="absolute left-[var(--page-margin)] top-1/2 w-[min(24ch,20vw)] -translate-y-1/2 will-change-transform"
+          className="absolute left-[var(--page-margin)] top-1/2 w-[min(30ch,18vw)] -translate-y-1/2 will-change-transform"
         >
-          <div className="smallcaps mb-3 text-ink/50">{current.kind}</div>
-          <div className="relative h-[7.5rem] overflow-hidden">
+          <div className="relative h-[22rem] overflow-hidden">
             <AnimatePresence initial={false} mode="popLayout">
-              <motion.p
+              <motion.div
                 key={current.id}
-                initial={{ y: "1.2em", opacity: 0 }}
+                initial={{ y: "1.5em", opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "-1.2em", opacity: 0 }}
+                exit={{ y: "-1.5em", opacity: 0 }}
                 transition={{ duration: 0.45, ease: EASE_ARRAY }}
-                className="text-small absolute inset-x-0 top-0 text-ink/70"
+                className="absolute inset-x-0 top-0"
               >
-                {current.line}
-              </motion.p>
+                <div className="smallcaps text-accent">Casos</div>
+                <h3
+                  className="mt-4 font-display leading-[1.04] tracking-[-0.015em] text-ink"
+                  style={{ fontSize: "clamp(1.5rem, 2.1vw, 2.35rem)" }}
+                >
+                  {current.solution} <em className="italic text-accent">{current.solutionItalic}</em>
+                </h3>
+                <ul className="mt-6 flex flex-col gap-2.5">
+                  {current.points.map((pt) => (
+                    <li key={pt} className="text-small flex items-center gap-2.5 text-ink/80">
+                      <span aria-hidden className="h-1 w-1 shrink-0 rounded-full bg-accent" />
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+                <span
+                  className={`smallcaps mt-6 inline-block whitespace-nowrap rounded-full border px-3 py-1.5 ${
+                    current.live ? "border-accent/60 text-accent" : "border-white/15 text-ink/55"
+                  }`}
+                >
+                  {current.status}
+                </span>
+              </motion.div>
             </AnimatePresence>
           </div>
-          <div className="text-small text-ink/55">{current.stack}</div>
         </div>
 
         {/* riel derecho: índices */}
@@ -214,7 +266,7 @@ export function Descent() {
           ref={rightRef}
           className="absolute right-[var(--page-margin)] top-1/2 flex -translate-y-1/2 flex-col items-end gap-2 will-change-transform"
         >
-          {CASES.map((c, i) => (
+          {FILMS.map((c, i) => (
             <span
               key={c.id}
               className={`font-display text-[1.25rem] leading-none transition-colors duration-500 ${
@@ -264,7 +316,7 @@ export function Descent() {
                 >
                   Trabajamos con inteligencia artificial en cada etapa, desde los assets hasta el
                   código, pero cada entrega se prueba con clientes y dinero real antes de darse
-                  por terminada. Lo que ves en los casos está publicado y en uso.
+                  por terminada. Lo que ves en los casos es producto funcionando, no maquetas.
                 </motion.p>
               </div>
               <div className="col-span-12 md:col-span-6 md:col-start-7">
@@ -291,12 +343,14 @@ export function Descent() {
         </div>
         </div>
       </div>
+      <CaseLightbox film={open} onClose={() => setOpen(null)} />
     </section>
   );
 }
 
 /** Mobile y reduced motion: lista apilada sobre el mismo gradiente. */
 function DescentStatic() {
+  const [open, setOpen] = useState<CaseFilm | null>(null);
   return (
     <section
       id="casos"
@@ -310,17 +364,42 @@ function DescentStatic() {
         <h2 className="font-display leading-[0.95] tracking-[-0.02em]" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
           Casos
         </h2>
-        {CASES.map((c) => (
-          <article key={c.id} className="flex flex-col items-center gap-5 text-center">
-            <div className="photo w-full" style={{ maxHeight: "36vh" }}>
-              <img src={c.image} alt={`${c.name}: ${c.kind}`} className="h-full w-full object-cover object-top" loading="lazy" />
+        {FILMS.map((c) => (
+          <article key={c.id} className="flex flex-col gap-5">
+            <button
+              type="button"
+              onClick={() => setOpen(c)}
+              aria-label={`Ver el caso ${c.client} con sonido`}
+              className="photo group relative block aspect-video w-full bg-black"
+            >
+              <img src={c.poster} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <PlayBadge duration={c.duration} />
+            </button>
+            <div className="smallcaps text-ink/55">
+              {c.index} · {c.client}
             </div>
-            <div className="text-h2">{c.name}</div>
-            <div className="smallcaps text-ink/50">{c.kind}</div>
-            <p className="text-small max-w-[36ch] text-ink/70">{c.line}</p>
+            <h3 className="text-h2">
+              {c.solution} <em className="italic text-accent">{c.solutionItalic}</em>
+            </h3>
+            <ul className="flex flex-col gap-2">
+              {c.points.map((pt) => (
+                <li key={pt} className="text-small flex items-center gap-2.5 text-ink/80">
+                  <span aria-hidden className="h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  {pt}
+                </li>
+              ))}
+            </ul>
+            <span
+              className={`smallcaps self-start rounded-full border px-3 py-1.5 ${
+                c.live ? "border-accent/60 text-accent" : "border-white/15 text-ink/55"
+              }`}
+            >
+              {c.status}
+            </span>
           </article>
         ))}
       </div>
+      <CaseLightbox film={open} onClose={() => setOpen(null)} />
 
       <div className="mt-32 bg-ground-2 py-24 text-ink">
         <div className="page-shell">
