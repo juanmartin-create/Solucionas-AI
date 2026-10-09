@@ -10,10 +10,10 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 export const SATS = [
-  { key: "web", label: "Web", color: "#3fe6ff", pos: [-2.2, 1.2, 0.4] },
-  { key: "cobro", label: "Cobro", color: "#3dffaf", pos: [2.1, 1.35, -0.6] },
-  { key: "app", label: "App", color: "#ff4fd8", pos: [2.0, -1.3, 0.7] },
-  { key: "agente", label: "Agente", color: "#ffb340", pos: [-1.9, -1.45, -0.5] },
+  { key: "web", label: "Web que vende", sub: "Consultas las 24 h", color: "#3fe6ff", pos: [-2.2, 1.2, 0.4] },
+  { key: "cobro", label: "Cobros online", sub: "Mercado Pago + panel", color: "#3dffaf", pos: [2.1, 1.35, -0.6] },
+  { key: "app", label: "App propia", sub: "Para tus clientes", color: "#ff4fd8", pos: [2.0, -1.3, 0.7] },
+  { key: "agente", label: "Agente con IA", sub: "Vende por chat", color: "#ffb340", pos: [-1.9, -1.45, -0.5] },
 ] as const;
 
 const GOLD = new THREE.Color("#c9a45c");
@@ -43,6 +43,8 @@ export type NodeScene = {
   resize: () => void;
   /** Posiciones en pantalla (px) de los satélites, para las etiquetas HTML. */
   labels: () => { x: number; y: number; visible: number }[];
+  /** Posición en pantalla del nodo (centro) y su visibilidad. */
+  center: () => { x: number; y: number; visible: number };
   start: () => void;
   stop: () => void;
   dispose: () => void;
@@ -142,7 +144,8 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
   scene.add(dust);
 
   // ---- estado ----
-  let scroll = 0;
+  let scroll = 0; // valor suavizado que usa la escena
+  let target = 0; // valor real del scroll
   let px = 0,
     py = 0,
     sx = 0,
@@ -166,6 +169,8 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
     const intro = ease(t / 1.8); // los hilos se trazan al cargar
     sx += (px - sx) * 0.05;
     sy += (py - sy) * 0.05;
+    scroll += (target - scroll) * (opts.still ? 1 : 0.075);
+    if (Math.abs(target - scroll) < 1e-4) scroll = target;
 
     // scroll: la cámara se acerca y el mundo gira; al final el nodo llena la pantalla
     const s1 = ease(win(scroll, 0, 0.55));
@@ -218,7 +223,8 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
   resize();
   return {
     setScroll(p) {
-      scroll = p;
+      target = p;
+      if (opts.still) scroll = p;
       if (opts.still) frame(performance.now());
     },
     setPointer(x, y) {
@@ -230,6 +236,14 @@ export function createNodeScene(canvas: HTMLCanvasElement, opts: { still?: boole
       if (opts.still) frame(performance.now());
     },
     labels,
+    center() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      node.getWorldPosition(v);
+      v.y -= 1.45;
+      v.project(camera);
+      return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h, visible: 1 - ease(win(scroll, 0.3, 0.5)) };
+    },
     start() {
       if (running) return;
       running = true;
