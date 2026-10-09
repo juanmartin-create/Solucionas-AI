@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollHalo, TechGrid } from "./Atmosphere";
 import { useRef, useState, type FocusEvent, type FormEvent } from "react";
 import { motion, useInView } from "motion/react";
 import { SERVICES, SITE } from "@/lib/site";
@@ -15,10 +16,12 @@ export function Start() {
   return (
     <section
       id="empezar"
-      className="gold-haze relative min-h-svh bg-ground-2"
+      className="gold-haze relative min-h-svh overflow-hidden bg-ground-2"
       style={{ paddingBlock: "var(--section-pad)" }}
     >
-      <div className="page-shell">
+      <TechGrid />
+      <ScrollHalo from={["15%", "10%"]} to={["75%", "75%"]} />
+      <div className="page-shell relative">
         <Heading text="Empezar" />
         <p className="text-body mt-8 max-w-[38ch] text-muted">
           Cuatro formatos de trabajo. Los plazos son reales, medidos en proyectos ya

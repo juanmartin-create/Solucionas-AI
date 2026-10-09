@@ -6,6 +6,10 @@ import { PRACTICE } from "@/lib/site";
 import { EASE_ARRAY } from "@/lib/gsap";
 import { useStaticPath } from "@/hooks/useMedia";
 import { PracticeFilm } from "./practice-films/PracticeFilm";
+import { TechGrid } from "./Atmosphere";
+
+/** Neón de cada servicio (igual que en sus animaciones): tiñe el halo del fondo. */
+const SERVICE_GLOW = ["rgba(63,230,255,0.13)", "rgba(61,255,175,0.12)", "rgba(255,79,216,0.12)", "rgba(255,179,64,0.13)"];
 
 /** Posiciones en escalera: (col, fila) 1-indexed. */
 const CELLS = [
@@ -40,10 +44,24 @@ export function Practice() {
   return (
     <section
       id="practica"
-      className="gold-haze relative min-h-svh bg-ground-2"
+      className="gold-haze relative min-h-svh overflow-hidden bg-ground-2"
       style={{ paddingTop: "clamp(3.5rem, 8vh, 6rem)", paddingBottom: "var(--section-pad)" }}
     >
-      <div className="page-shell">
+      <TechGrid />
+      {/* halo del servicio abierto: se mueve a su columna y toma su neón */}
+      {!isStatic &&
+        SERVICE_GLOW.map((c, i) => (
+          <motion.div
+            key={c}
+            aria-hidden
+            className="pointer-events-none absolute top-[55%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ left: `${12.5 + 25 * i}%`, background: `radial-gradient(closest-side, ${c}, transparent)` }}
+            initial={false}
+            animate={{ opacity: open === i ? 1 : 0, scale: open === i ? 1 : 0.85 }}
+            transition={{ duration: 0.9, ease: EASE_ARRAY }}
+          />
+        ))}
+      <div className="page-shell relative">
         <Heading text="Lo que" italic="hacemos" />
 
         <div className="smallcaps mt-10 grid grid-cols-12 gap-x-[var(--gutter)] text-muted">

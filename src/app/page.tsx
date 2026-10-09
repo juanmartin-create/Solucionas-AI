@@ -5,6 +5,7 @@ import { Method } from "@/components/Method";
 import { Descent } from "@/components/Descent";
 import { Start } from "@/components/Start";
 import { Footer } from "@/components/Footer";
+import { Grain } from "@/components/Atmosphere";
 
 export default function Home() {
   return (
@@ -29,6 +30,7 @@ export default function Home() {
         </div>
       </main>
       <Footer />
+      <Grain />
     </>
   );
 }

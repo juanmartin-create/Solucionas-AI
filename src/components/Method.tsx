@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollHalo } from "./Atmosphere";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { METHOD } from "@/lib/site";
 import { ScrollTrigger } from "@/lib/gsap";
@@ -108,6 +109,7 @@ export function Method() {
       className="relative overflow-hidden bg-ground-2"
       style={{ paddingBlock: "var(--section-pad)" }}
     >
+      <ScrollHalo from={["85%", "5%"]} to={["60%", "85%"]} />
       {/* fondo: una luz de agua a la derecha; la mitad izquierda queda limpia para el texto */}
       <div
         className="absolute inset-0"
