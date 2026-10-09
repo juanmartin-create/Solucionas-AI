@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>NEXO · conceptos de logo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#0a0a0b;--ink:#efe9dd;--gold:#c9a45c;--muted:#8f8a80}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ground);color:var(--ink);font-family:'JetBrains Mono',monospace;padding:56px 64px 80px}
+h1{font:600 13px/1 'JetBrains Mono';letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.lead{margin-top:14px;font:400 italic 30px/1.2 Newsreader;color:var(--ink)}
+.c{margin-top:56px;padding-top:28px;border-top:1px solid #2a2722;display:grid;grid-template-columns:260px 1fr;gap:40px}
+.c .k{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.c .t{margin-top:10px;font:400 italic 30px/1.1 Newsreader}
+.c .d{margin-top:12px;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.row{display:grid;grid-template-columns:1.6fr 1fr 0.55fr 0.55fr;gap:16px}
+.tile{border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:220px;position:relative;overflow:hidden}
+.tile.dark{background:radial-gradient(60% 70% at 50% 50%,#1a160f,#0a0a0b)}
+.tile.light{background:#efe9dd}
+.tile .lbl{position:absolute;left:12px;bottom:10px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6f6a61}
+.icon{width:120px;height:120px;border-radius:28px;display:flex;align-items:center;justify-content:center}
+.fav{display:flex;flex-direction:column;gap:14px;align-items:center}
+</style></head><body>
+<h1>NEXO · Soluciones AI</h1>
+<div class="lead">Cuatro conceptos de logo. <span style="color:var(--gold)">Nexo = lo que une.</span></div>
+<div id="out"></div>
+<script>
+const GOLD='#c9a45c', INK='#efe9dd', BLACK='#0a0a0b';
+// Letras geométricas (alto 100, trazo 24), en el espíritu de Unbounded.
+const G={
+  N:{w:84,d:'M0 100V0H24L60 58V0H84V100H60L24 42V100Z'},
+  E:{w:70,d:'M0 0H70V22H24V39H62V61H24V78H70V100H0Z'},
+  X:{w:90,d:'M0 0H28L90 100H62Z M62 0H90L28 100H0Z'},
+  O:{w:100,d:'M50 0A50 50 0 1 1 49.99 0Z M50 24A26 26 0 1 0 50.01 24Z'},
+};
+const GAP=12;
+function word(color, opt={}){ // devuelve {svg, w}
+  let x=0, parts='';
+  for(const ch of 'NEXO'){
+    const g=G[ch];
+    if(ch==='X' && opt.node){
+      // X con nodo: los trazos se abren alrededor del punto dorado
+      parts+=`<g transform="translate(${x} 0)"><mask id="m${opt.id}"><rect x="-10" y="-10" width="120" height="120" fill="#fff"/><circle cx="45" cy="50" r="21" fill="#000"/></mask><path d="${g.d}" fill="${color}" mask="url(#m${opt.id})" fill-rule="evenodd"/><circle cx="45" cy="50" r="13" fill="${GOLD}" ${opt.glow?'filter="url(#glow)"':''}/></g>`;
+    } else parts+=`<path transform="translate(${x} 0)" d="${g.d}" fill="${color}" fill-rule="evenodd"/>`;
+    x+=g.w+GAP;
+  }
+  return {svg:parts,w:x-GAP};
+}
+const defs=`<defs><filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="neon" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+
+// Marcas (símbolos) de cada concepto, en caja 100x100
+const MARK={
+  nodo:(c)=>`<path d="${G.X.d}" fill="${c}" transform="translate(5 0)" mask="url(#mk)" fill-rule="evenodd"/><mask id="mk"><rect width="100" height="100" fill="#fff"/><circle cx="50" cy="50" r="21" fill="#000"/></mask><circle cx="50" cy="50" r="13" fill="${GOLD}" filter="url(#glow)"/>`,
+  hilo:(c)=>`<path d="M18 86V16L82 84V14" fill="none" stroke="${GOLD}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="86" r="11" fill="${c}"/><circle cx="82" cy="14" r="11" fill="${c}"/>`,
+  enlace:(c)=>`<clipPath id="cl"><circle cx="38" cy="50" r="30"/></clipPath><circle cx="62" cy="50" r="30" fill="${GOLD}" clip-path="url(#cl)"/><circle cx="38" cy="50" r="30" fill="none" stroke="${c}" stroke-width="9"/><circle cx="62" cy="50" r="30" fill="none" stroke="${c}" stroke-width="9"/>`,
+  neon:()=>`<path d="M20 84V18L80 82V16" fill="none" stroke="${GOLD}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#neon)" opacity=".9"/><path d="M20 84V18L80 82V16" fill="none" stroke="#fff3d6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+const C=[
+  {id:'nodo',k:'Concepto 01',t:'Nodo',d:'La X de NEXO se abre y en el cruce aparece un punto dorado que brilla: el nexo, el punto donde todo se conecta. El wordmark solo ya es el logo; el símbolo es la X con su nodo.',lockup:'node'},
+  {id:'hilo',k:'Concepto 02',t:'El hilo',d:'Una N trazada con una sola línea dorada que une dos puntos. Es el hilo de los videos de casos hecho marca: conecta tu negocio con tu cliente. Monograma limpio para avatar y favicon.',lockup:'mark'},
+  {id:'enlace',k:'Concepto 03',t:'Enlace',d:'Dos anillos que se cruzan; lo que comparten es dorado. Lectura inmediata de "unión" y muy reconocible en chico. Más clásico y corporativo.',lockup:'mark'},
+  {id:'neon',k:'Concepto 04',t:'Neón',d:'La N del hilo como tubo de neón dorado. Es la versión con más personalidad, alineada con las animaciones de Práctica. Funciona mejor en fondos oscuros, ideal para redes.',lockup:'mark'},
+];
+function lockup(c, color, sub){
+  if(c.lockup==='node'){
+    const w=word(color,{node:true,glow:true,id:c.id+color.slice(1)});
+    return `<svg viewBox="-10 -10 ${w.w+20} ${sub?150:120}" width="${Math.min(520,(w.w+20)*1.25)}">${defs}${w.svg}${sub?`<text x="0" y="135" font-family="JetBrains Mono" font-weight="600" font-size="15" letter-spacing="6" fill="${GOLD}">SOLUCIONES AI</text>`:''}</svg>`;
+  }
+  const w=word(color);
+  return `<svg viewBox="-10 -10 ${130+w.w*0.62+20} 120" width="480">${defs}<g>${MARK[c.id](color)}</g><g transform="translate(130 18) scale(.62)">${w.svg}</g>${sub?`<text x="130" y="100" font-family="JetBrains Mono" font-weight="600" font-size="11" letter-spacing="4.4" fill="${GOLD}">SOLUCIONES AI</text>`:''}</svg>`;
+}
+function icon(c, bg, color, size){
+  const inner = MARK[c.id](color);
+  return `<div class="icon" style="background:${bg};width:${size}px;height:${size}px;border-radius:${size*0.23}px;${bg===BLACK?'box-shadow:0 0 0 1px #2a2722':''}"><svg viewBox="-12 -12 124 124" width="${size*0.72}">${defs}${inner}</svg></div>`;
+}
+document.getElementById('out').innerHTML=C.map(c=>`
+<section class="c"><div><div class="k">${c.k}</div><div class="t">${c.t}</div><div class="d">${c.d}</div></div>
+<div class="row">
+  <div class="tile dark">${lockup(c,INK,true)}<span class="lbl">Logo · fondo oscuro</span></div>
+  <div class="tile light">${c.id==='neon'?'<span style="font-size:12px;color:#6f6a61;letter-spacing:.1em">Solo para fondos oscuros</span>':lockup(c,BLACK,false).replace('width="480"','width="300"').replace(/width="\d+(\.\d+)?"/, m=>m)}<span class="lbl">Fondo claro</span></div>
+  <div class="tile dark">${icon(c,BLACK,INK,120)}<span class="lbl">App / avatar</span></div>
+  <div class="tile dark fav">${icon(c,BLACK,INK,48)}${icon(c,BLACK,INK,24)}<span class="lbl">Favicon</span></div>
+</div></section>`).join('');
+</script></body></html>
