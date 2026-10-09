@@ -2,6 +2,7 @@ import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/hero/Hero";
 import { Practice } from "@/components/Practice";
 import { Method } from "@/components/Method";
+import { ForWho } from "@/components/ForWho";
 import { Descent } from "@/components/Descent";
 import { Start } from "@/components/Start";
 import { Footer } from "@/components/Footer";
@@ -24,6 +25,7 @@ export default function Home() {
         {/* Cover handoff: todo lo posterior se desliza por encima del hero pinneado. */}
         <div className="relative z-10 -mt-[100svh]">
           <Practice />
+          <ForWho />
           <Method />
           <Descent />
           <Start />
