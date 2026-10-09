@@ -8,48 +8,111 @@ export const FILM = { width: 600, height: 760, fps: 30, durationInFrames: 180 } 
 
 export const C = {
   gold: "#c9a45c",
-  goldLight: "#e3c88f",
-  ink: "#efe9dd",
-  muted: "rgba(239,233,221,0.45)",
-  line: "rgba(239,233,221,0.16)",
+  ink: "#f4efe6",
+  muted: "rgba(244,239,230,0.5)",
+  line: "rgba(244,239,230,0.14)",
   panel: "rgba(255,255,255,0.035)",
-  pitch: "#0a0a0b",
+  pitch: "#07070a",
 } as const;
 
-export const SERIF = "var(--font-display), Newsreader, serif";
-export const SANS = "var(--font-body), 'Instrument Sans', sans-serif";
+/** Un neón por servicio. */
+export const NEON = {
+  cyan: "#3fe6ff",
+  mint: "#3dffaf",
+  magenta: "#ff4fd8",
+  amber: "#ffb340",
+} as const;
 
-/** Resorte sin rebote exagerado (amortiguado), arrancando en `start`. */
+export const DISPLAY = "var(--font-unbounded), 'Unbounded', sans-serif";
+export const MONO = "var(--font-jetbrains), 'JetBrains Mono', monospace";
+
+/** rgba desde hex. */
+export function rgba(hex: string, a: number) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+/** Brillo de tubo de neón para texto. */
+export function neonText(color: string, a = 1) {
+  return `0 0 2px ${rgba("#ffffff", 0.7 * a)}, 0 0 8px ${rgba(color, 0.9 * a)}, 0 0 22px ${rgba(color, 0.65 * a)}, 0 0 48px ${rgba(color, 0.4 * a)}`;
+}
+
+/** Brillo de neón para bordes y cajas. */
+export function neonBox(color: string, a = 1) {
+  return `0 0 0 1px ${rgba(color, 0.9 * a)}, 0 0 14px ${rgba(color, 0.55 * a)}, 0 0 36px ${rgba(color, 0.28 * a)}, inset 0 0 18px ${rgba(color, 0.12 * a)}`;
+}
+
+/** Parpadeo de encendido de un tubo, arrancando en `start` (0 → 1). */
+export function useFlicker(start: number) {
+  const u = useCurrentFrame() - start;
+  if (u < 0) return 0;
+  if (u < 2) return 0.3;
+  if (u < 4) return 1;
+  if (u < 6) return 0.25;
+  if (u < 9) return 1;
+  if (u < 11) return 0.6;
+  return 1;
+}
+
+/** Resorte amortiguado, arrancando en `start`. */
 export function useIn(start: number, damping = 18) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   return spring({ frame: frame - start, fps, config: { damping, mass: 0.8 } });
 }
 
-/** 0→1 lineal y con clamp entre dos cuadros. */
+/** 0→1 lineal con clamp entre dos cuadros. */
 export function useRange(a: number, b: number) {
   const frame = useCurrentFrame();
   return interpolate(frame, [a, b], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 }
 
-/** Fundido de salida común para que el loop no corte en seco. */
+/** Fundido de entrada y salida para que el loop no corte en seco. */
 export function useLoopFade() {
   const frame = useCurrentFrame();
   return interpolate(frame, [0, 8, 168, 180], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 }
 
-export function Label({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+/** Fondo de cada pieza: grilla tenue + halo del color del servicio. */
+export function Backdrop({ color }: { color: string }) {
+  const frame = useCurrentFrame();
+  const pulse = 0.8 + 0.2 * Math.sin(frame / 14);
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `linear-gradient(${rgba(color, 0.07)} 1px, transparent 1px), linear-gradient(90deg, ${rgba(color, 0.07)} 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+          maskImage: "radial-gradient(70% 60% at 50% 50%, black, transparent)",
+        }}
+      />
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(55% 45% at 50% 55%, ${rgba(color, 0.16 * pulse)}, transparent 70%)` }} />
+    </>
+  );
+}
+
+/** Etiqueta de la pieza: mono, en mayúsculas, con punto de neón que late. */
+export function Label({ children, color }: { children: ReactNode; color: string }) {
+  const frame = useCurrentFrame();
   return (
     <div
       style={{
-        fontFamily: SANS,
-        fontSize: 20,
-        letterSpacing: "0.22em",
+        position: "absolute",
+        left: 40,
+        top: 34,
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        fontFamily: MONO,
+        fontSize: 18,
+        letterSpacing: "0.18em",
         textTransform: "uppercase",
         color: C.muted,
-        ...style,
       }}
     >
+      <span style={{ width: 10, height: 10, borderRadius: 10, background: color, boxShadow: `0 0 10px ${color}`, opacity: 0.55 + 0.45 * Math.abs(Math.sin(frame / 9)) }} />
       {children}
     </div>
   );
@@ -76,19 +139,19 @@ export function Cursor({ path, press }: { path: [number, number, number][]; pres
       width={30}
       height={30}
       viewBox="0 0 28 28"
-      style={{ position: "absolute", left: x - 5, top: y - 2, transform: `scale(${pressed ? 0.88 : 1})`, transformOrigin: "5px 2px" }}
+      style={{ position: "absolute", left: x - 5, top: y - 2, transform: `scale(${pressed ? 0.88 : 1})`, transformOrigin: "5px 2px", filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.6))" }}
     >
       <path d="M5 2 L5 22.2 L10.1 17.6 L13.6 25.2 L17 23.7 L13.5 16.3 L20.3 16.3 Z" fill={C.pitch} stroke="#fff" strokeWidth={1.7} strokeLinejoin="round" />
     </svg>
   );
 }
 
-/** Onda dorada del click. */
-export function Ripple({ at, x, y }: { at: number; x: number; y: number }) {
+/** Onda de neón del click. */
+export function Ripple({ at, x, y, color }: { at: number; x: number; y: number; color: string }) {
   const frame = useCurrentFrame();
   const k = interpolate(frame, [at, at + 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   if (frame < at || k >= 1) return null;
-  const r = 8 + 34 * (1 - Math.pow(1 - k, 3));
+  const r = 8 + 36 * (1 - Math.pow(1 - k, 3));
   return (
     <div
       style={{
@@ -98,16 +161,18 @@ export function Ripple({ at, x, y }: { at: number; x: number; y: number }) {
         width: 2 * r,
         height: 2 * r,
         borderRadius: "50%",
-        border: `2px solid ${C.gold}`,
+        border: `2px solid ${color}`,
+        boxShadow: `0 0 14px ${color}`,
         opacity: 1 - k,
       }}
     />
   );
 }
 
-/** Píldora de estado que entra con resorte. */
-export function Pill({ start, children, style }: { start: number; children: ReactNode; style?: CSSProperties }) {
+/** Píldora de neón que se enciende con parpadeo. */
+export function Pill({ start, color, children, style }: { start: number; color: string; children: ReactNode; style?: CSSProperties }) {
   const k = useIn(start);
+  const f = useFlicker(start);
   return (
     <div
       style={{
@@ -117,14 +182,16 @@ export function Pill({ start, children, style }: { start: number; children: Reac
         gap: 10,
         padding: "12px 20px",
         borderRadius: 999,
-        background: C.gold,
-        color: C.pitch,
-        fontFamily: SANS,
-        fontSize: 25,
+        background: rgba(color, 0.12),
+        color,
+        fontFamily: MONO,
+        fontSize: 22,
         fontWeight: 600,
-        opacity: k,
+        letterSpacing: "0.04em",
+        opacity: k * f,
+        textShadow: neonText(color, f),
+        boxShadow: neonBox(color, f),
         transform: `translateY(${(1 - k) * 18}px) scale(${0.9 + 0.1 * k})`,
-        boxShadow: "0 12px 30px -12px rgba(201,164,92,0.8)",
         ...style,
       }}
     >
