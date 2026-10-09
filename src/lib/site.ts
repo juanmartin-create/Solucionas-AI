@@ -12,7 +12,7 @@ export const SITE = {
   tagline: "Webs, sistemas y agentes que venden solos.",
   description:
     "Estudio digital en Buenos Aires. Diseñamos y construimos webs cinematográficas, sistemas de cobro y gestión, productos PWA y agentes con IA para negocios reales.",
-  url: "https://nexo-solucionesai.netlify.app",
+  url: "https://nexosol.netlify.app",
   email: "juanmartin@simplex.la",
   city: "Buenos Aires, Argentina",
   locale: "es_AR",
